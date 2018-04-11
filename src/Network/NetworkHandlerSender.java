@@ -10,20 +10,20 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class NetworkHandler {
+public class NetworkHandlerSender {
     private final String clientName = "";
     private MulticastSocket socket;
     private InetAddress groupAdress;
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "test";
+    private String message = "";
 
     public static void main(String args[]) {
-        new NetworkHandler("Fane");
+        new NetworkHandler("Eduard");
     }
 
-    public NetworkHandler(String clientName) {
+    public NetworkHandlerSender(String clientName) {
         clientName = this.clientName;
 
         try {
@@ -39,18 +39,6 @@ public class NetworkHandler {
             socket.joinGroup(groupAdress);
             DatagramPacket test = new DatagramPacket(message.getBytes(), message.length(), groupAdress, Utils.GroupPort);
             socket.send(test);
-            System.out.println(groupAdress);
-            byte[] buf = new byte[1000];
-            DatagramPacket recv = new DatagramPacket(buf, buf.length);
-
-            while(true) {
-                socket.receive(recv);
-                String received = new String(recv.getData(), 0, recv.getLength());
-                if(!received.equals("test")) {
-                    System.out.println(received);
-                }
-
-            }
         }catch(IOException e) {
             e.printStackTrace();
         }
