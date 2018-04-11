@@ -17,10 +17,10 @@ public class NetworkHandler {
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "Dacii au fost primii";
+    private String message = "test";
 
     public static void main(String args[]) {
-        new NetworkHandler("Eduard");
+        new NetworkHandler("Fane");
     }
 
     public NetworkHandler(String clientName) {
