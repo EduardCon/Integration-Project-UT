@@ -17,10 +17,10 @@ public class NetworkHandler {
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "Dacii au fost primii";
+    private String message = "test";
 
     public static void main(String args[]) {
-        new NetworkHandler("Eduard");
+        new NetworkHandler("Fane");
     }
 
     public NetworkHandler(String clientName) {
@@ -42,10 +42,14 @@ public class NetworkHandler {
             System.out.println(groupAdress);
             byte[] buf = new byte[1000];
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
-            socket.receive(recv);
+
             while(true) {
+                socket.receive(recv);
                 String received = new String(recv.getData(), 0, recv.getLength());
-                System.out.println(received);
+                if(!received.equals("test")) {
+                    System.out.println(received);
+                }
+
             }
         }catch(IOException e) {
             e.printStackTrace();
