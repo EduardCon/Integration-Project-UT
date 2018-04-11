@@ -25,8 +25,8 @@ public class NetworkHandlerReceiver extends Thread {
     }
 
     public void run() {
-        System.out.println("Pornesc");
         try {
+            System.out.println("Pornesc");
            socket = new MulticastSocket(Utils.GroupPort);
            InetAddress group = InetAddress.getByName(Utils.GroupAdress);
            socket.joinGroup(group);
@@ -35,6 +35,7 @@ public class NetworkHandlerReceiver extends Thread {
                socket.receive(packet);
                String received = new String(
                        packet.getData(), 0, packet.getLength());
+               System.out.println(received);
                if ("end".equals(received)) {
                    break;
                }
