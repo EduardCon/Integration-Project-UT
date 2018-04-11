@@ -42,10 +42,14 @@ public class NetworkHandler {
             System.out.println(groupAdress);
             byte[] buf = new byte[1000];
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
-            socket.receive(recv);
+
             while(true) {
+                socket.receive(recv);
                 String received = new String(recv.getData(), 0, recv.getLength());
-                System.out.println(received);
+                if(!received.equals("test")) {
+                    System.out.println(received);
+                }
+
             }
         }catch(IOException e) {
             e.printStackTrace();
