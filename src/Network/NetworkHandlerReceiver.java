@@ -17,7 +17,6 @@ public class NetworkHandlerReceiver extends Thread {
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "";
     protected byte[] buf = new byte[256];
 
     public void run() {

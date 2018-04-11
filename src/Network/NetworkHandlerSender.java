@@ -17,10 +17,11 @@ public class NetworkHandlerSender {
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "";
+    private String message = "Hai la o tigara";
 
-    public static void main(String args[]) {
-        new NetworkHandler("Eduard");
+    public static void main(String[] args) {
+        new NetworkHandlerSender("Eduard");
+        new NetworkHandlerReceiver();
     }
 
     public NetworkHandlerSender(String clientName) {
