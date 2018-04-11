@@ -43,8 +43,10 @@ public class NetworkHandler {
             byte[] buf = new byte[1000];
             DatagramPacket recv = new DatagramPacket(buf, buf.length);
             socket.receive(recv);
-            String received = new String(recv.getData(), 0, recv.getLength());
-            System.out.println(received);
+            while(true) {
+                String received = new String(recv.getData(), 0, recv.getLength());
+                System.out.println(received);
+            }
         }catch(IOException e) {
             e.printStackTrace();
         }
