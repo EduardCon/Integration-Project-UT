@@ -19,8 +19,14 @@ public class NetworkHandlerReceiver extends Thread {
     private Integer computerNumber;
     protected byte[] buf = new byte[256];
 
+    public NetworkHandlerReceiver() {
+        new Thread(this);
+        this.start();
+    }
+
     public void run() {
-       try {
+        System.out.println("Pornesc");
+        try {
            socket = new MulticastSocket(Utils.GroupPort);
            InetAddress group = InetAddress.getByName(Utils.GroupAdress);
            socket.joinGroup(group);
