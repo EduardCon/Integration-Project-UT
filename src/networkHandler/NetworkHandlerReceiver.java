@@ -12,22 +12,13 @@ public class NetworkHandlerReceiver extends Thread {
 
     private Client client;
     private MulticastSocket socket;
-    private MulticastSocket groupSocket;
     private InetAddress groupAddress;
     private InetAddress myAddress;
     private byte[] buf = new byte[256];
 
-    public NetworkHandlerReceiver(Client client) {
+    public NetworkHandlerReceiver(Client client, MulticastSocket socket) {
         this.client = client;
-        try {
-            this.socket = this.client.getSocket();
-            this.groupSocket = this.client.getGroupSocket();
-            groupAddress = InetAddress.getByName(Utils.multiCastAddress);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.socket = socket;
         new Thread(this);
         this.start();
     }
@@ -40,17 +31,11 @@ public class NetworkHandlerReceiver extends Thread {
                 socket.receive(packet);
                 String received = new String(packet.getData(), 0, packet.getLength());
                 System.out.println("Received: <" + received + "> from: " + packet.getAddress() + " on port: " + packet.getPort());
-
-                DatagramPacket broadcastPacket = new DatagramPacket(buf, buf.length);
-                groupSocket.receive(broadcastPacket);
-                String receivedBroadcast = new String(broadcastPacket.getData(), 0, broadcastPacket.getLength());
-                System.out.println("Received broadcast: <" + receivedBroadcast + "> from " + broadcastPacket.getAddress());
                 if("end".equals(received)) {
+                    this.socket.leaveGroup(InetAddress.getByName(Utils.multiCastAddress));
                     break;
                 }
             }
-            socket.leaveGroup(groupAddress);
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

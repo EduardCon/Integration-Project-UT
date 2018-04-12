@@ -16,7 +16,8 @@ public class Client {
     private int deviceNo;
     private NetworkHandlerReceiver receiver;
     private NetworkHandlerSender sender;
-    private BroadcastHandler broadcast;
+    private BroadcastHandler broadcastSender;
+    private NetworkHandlerReceiver broadcastReceiver;
     private int listeningPort;
     private MulticastSocket socket;
     private MulticastSocket groupSocket;
@@ -26,9 +27,9 @@ public class Client {
         c.findClientPort();
         c.connect();
         try {
-            c.send("what", 54322);
-            c.send("the", 54322);
-            c.send("fuck", 54321);
+            c.send("what", 54324);
+            c.send("the", 54324);
+            c.send("fuck", 54324);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,21 +37,25 @@ public class Client {
 
     public Client(String name) {
         this.name = name;
+        this.listeningPort = this.findClientPort();
     }
 
     public void connect() {
-        this.listeningPort = this.findClientPort();
+
         try {
+            // This client's communication socket.
             this.socket = new MulticastSocket(this.listeningPort);
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
             this.groupSocket.joinGroup(InetAddress.getByName(Utils.multiCastAddress));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.sender = new NetworkHandlerSender(this);
         this.sender.connectToMultiCast();
-        this.receiver = new NetworkHandlerReceiver(this);
-        //this.broadcast = new BroadcastHandler(this);
+        this.receiver = new NetworkHandlerReceiver(this, this.socket);
+        this.broadcastSender = new BroadcastHandler(this);
+        this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
 
         this.deviceNo = this.listeningPort % 10;
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
