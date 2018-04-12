@@ -24,7 +24,7 @@ public class Utils {
     public static int convertToInt(byte data){
         //Function to fix signed stuff.
         long dataL = (long) data;
-        return (int )dataL & 0xff;
+        return (int)dataL & 0xff;
     }
 
     public static class Flags {

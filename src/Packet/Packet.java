@@ -21,12 +21,12 @@ public class Packet {
 
 
     public static void main (String[] args) throws InvalidPacketFormat {
-        byte[] packetel= new byte[1000];
+        byte[] packetel= new byte[20];
         packetel[0] = 2;
         String message = "Salut ";
         String message1 = "Boss!";
         byte[] arr = message.getBytes();
-        System.arraycopy(packetel, 9, arr, 0, arr.length);
+        System.arraycopy(arr, 0, packetel, 9, arr.length);
         Packet pack = new Packet(packetel);
         pack.print();
     }
@@ -47,15 +47,20 @@ public class Packet {
             windowSize = packet[7];
             nextHop = packet[8];
 
-            int dataLength = (Utils.convertToInt((byte)((packet[9]<<8) + (Utils.convertToInt(packet[10])))));
+            int dataLength = (Utils.convertToInt(packet[9]) << 8) + (Utils.convertToInt(packet[10]));
+            System.out.println(dataLength);
 
-            data = new byte[100];
+            data = new byte[dataLength];
+            System.out.println(packet.length);
 
+            if (dataLength != 0) {
+                System.arraycopy(packet,9, data, 0, dataLength);
+            }
+            }
 
-            System.arraycopy(packet, 9, data, 0, 100);
         }
 
-    }
+
 
     public void print() {System.out.println(new String(this.getData())); }
 
