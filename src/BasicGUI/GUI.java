@@ -90,7 +90,7 @@ public class GUI {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470,300);
     }
-    
+
     class sendMessageButtonListener implements ActionListener{
         public void actionPerformed (ActionEvent event) {
             if(msgBox.getText().length() < 1 ) {
