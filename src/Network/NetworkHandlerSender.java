@@ -17,7 +17,7 @@ public class NetworkHandlerSender {
     private HashMap <Integer, String> connectedClients;
     private String clientIp;
     private Integer computerNumber;
-    private String message = "Hai la o tigara";
+    private String message = "mesaj 1";
 
     public static void main(String[] args) {
         new NetworkHandlerSender("Eduard");
