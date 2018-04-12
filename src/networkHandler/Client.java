@@ -1,6 +1,7 @@
 package networkHandler;
 
 import com.sun.org.apache.xpath.internal.operations.Mult;
+import sun.nio.ch.Net;
 import util.Utils;
 
 import java.io.IOException;
@@ -10,17 +11,61 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+/**
+ * Class for the Client object used for connecting to the multicast group.
+ */
 public class Client {
 
+    /**
+     * The name of the Client.
+     */
     private String name;
+
+    /**
+     * The number of the device (between 1 and 4).
+     */
     private int deviceNo;
+
+    /**
+     * The object that handles incoming packets.
+     */
     private NetworkHandlerReceiver receiver;
+
+    /**
+     * The object that handles outgoing packets.
+     */
     private NetworkHandlerSender sender;
-    private BroadcastHandler broadcast;
+
+    /**
+     * The object that handles periodic broadcasting.
+     */
+    private BroadcastHandler broadcastSender;
+
+    /**
+     * The object that handles incoming broadcasts.
+     */
+    private NetworkHandlerReceiver broadcastReceiver;
+
+    /**
+     * The port that this client is listening to.
+     */
     private int listeningPort;
+
+    /**
+     * The socket used for communicating with this client.
+     */
     private MulticastSocket socket;
+
+    /**
+     * The socket used for communicating with the whole multicast group.
+     */
     private MulticastSocket groupSocket;
 
+
+    /**
+     * Main function used for testing.
+     * @param args
+     */
     public static final void main(String[] args) {
         Client c = new Client("edi");
         c.findClientPort();
@@ -34,12 +79,22 @@ public class Client {
         }
     }
 
+    /**
+     * Client constructor.
+     * @param name The name of the Client.
+     */
     public Client(String name) {
         this.name = name;
+        this.listeningPort = this.findClientPort();
+        this.deviceNo = this.listeningPort % 10;
     }
 
+    /**
+     * Connects the Client to the multicast group.
+     * Instantiates the objects that handle communication.
+     */
     public void connect() {
-        this.listeningPort = this.findClientPort();
+
         try {
             this.socket = new MulticastSocket(this.listeningPort);
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
@@ -49,14 +104,21 @@ public class Client {
         }
         this.sender = new NetworkHandlerSender(this);
         this.sender.connectToMultiCast();
-        this.receiver = new NetworkHandlerReceiver(this);
-        //this.broadcast = new BroadcastHandler(this);
+        this.receiver = new NetworkHandlerReceiver(this, this.socket);
+        this.broadcastSender = new BroadcastHandler(this);
+        this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
 
-        this.deviceNo = this.listeningPort % 10;
+
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
 
     }
 
+    /**
+     * Search through the interfaces and find an IP address that has a "192.168.5.X" prefix.
+     * X is the computer number and is used for the port.
+     * The port will be 5432X.
+     * @return The client's port.
+     */
     public int findClientPort() {
         String ip;
         try {
@@ -85,36 +147,65 @@ public class Client {
         }
     }
 
-    public int getListeningPort() {
-        return this.listeningPort;
-    }
 
+    /**
+     * Method for sending a message.
+     * @param message The message to be sent.
+     * @param port The destination port.
+     * @throws IOException
+     */
     public void send(String message, int port) throws IOException {
         this.sender.send(message, port);
     }
 
+    /**
+     * Get the listening port.
+     * @return The listening port.
+     */
+    public int getListeningPort() {
+        return this.listeningPort;
+    }
 
+
+
+    /**
+     * Getter.
+     * @return The object that handles outgoing packets.
+     */
     public NetworkHandlerSender getSender() {
         return sender;
     }
 
+    /**
+     * Getter.
+     * @return The name of the client.
+     */
     public String getName() {
         return this.name;
     }
 
+    /**
+     * Getter.
+     * @return The number of this client.
+     */
     public int getDeviceNo() {
         return this.deviceNo;
     }
 
+    /**
+     * Getter.
+     * @return This client's communication socket.
+     */
     public MulticastSocket getSocket() {
         return this.socket;
     }
 
+    /**
+     * Getter.
+     * @return The multicast group communication socket.
+     */
     public MulticastSocket getGroupSocket() {
         return this.groupSocket;
     }
 
-    public void setDeviceNo(int deviceNo) {
-        this.deviceNo = deviceNo;
-    }
 }

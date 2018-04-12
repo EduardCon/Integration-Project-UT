@@ -1,5 +1,6 @@
 package networkHandler;
 
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import util.Utils;
 
 import java.io.IOException;
@@ -8,20 +9,40 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+
+/**
+ * The object that handles incoming packets.
+ */
 public class NetworkHandlerReceiver extends Thread {
 
+    /**
+     * The client that instantiated this object.
+     */
     private Client client;
+
+    /**
+     * The client's communication socket.
+     */
     private MulticastSocket socket;
-    private MulticastSocket groupSocket;
+
+    /**
+     * The address of the multicast group.
+     */
     private InetAddress groupAddress;
-    private InetAddress myAddress;
+
+    /**
+     * Buffer.
+     */
     private byte[] buf = new byte[256];
 
-    public NetworkHandlerReceiver(Client client) {
+    /**
+     * Constructor.
+     * @param client The client instantiating this object.
+     */
+    public NetworkHandlerReceiver(Client client, MulticastSocket socket) {
         this.client = client;
         try {
-            this.socket = this.client.getSocket();
-            this.groupSocket = this.client.getGroupSocket();
+            this.socket = socket;
             groupAddress = InetAddress.getByName(Utils.multiCastAddress);
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -32,6 +53,9 @@ public class NetworkHandlerReceiver extends Thread {
         this.start();
     }
 
+    /**
+     * Thread method.
+     */
     public void run() {
         try {
             System.out.println("Listening...");
@@ -40,17 +64,12 @@ public class NetworkHandlerReceiver extends Thread {
                 socket.receive(packet);
                 String received = new String(packet.getData(), 0, packet.getLength());
                 System.out.println("Received: <" + received + "> from: " + packet.getAddress() + " on port: " + packet.getPort());
-
-                DatagramPacket broadcastPacket = new DatagramPacket(buf, buf.length);
-                groupSocket.receive(broadcastPacket);
-                String receivedBroadcast = new String(broadcastPacket.getData(), 0, broadcastPacket.getLength());
-                System.out.println("Received broadcast: <" + receivedBroadcast + "> from " + broadcastPacket.getAddress());
                 if("end".equals(received)) {
+                    socket.leaveGroup(groupAddress);
+                    socket.close();
                     break;
                 }
             }
-            socket.leaveGroup(groupAddress);
-            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
