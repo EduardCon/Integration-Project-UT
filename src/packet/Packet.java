@@ -21,12 +21,13 @@ public class Packet {
 
 
     public static void main (String[] args) throws InvalidPacketFormat {
-        byte[] packetel= new byte[1000];
+        byte[] packetel= new byte[10000000];
         packetel[0] = 2;
         String message = "Salut ";
         String message1 = "Boss!";
         byte[] arr = message.getBytes();
-        System.arraycopy(packetel, 9, arr, 0, arr.length);
+        byte[] arr1 = message1.getBytes();
+        System.arraycopy(arr, 0, packetel, 9, arr.length);
         Packet pack = new Packet(packetel);
         pack.print();
     }
@@ -51,8 +52,9 @@ public class Packet {
 
             data = new byte[100];
 
-
-            System.arraycopy(packet, 9, data, 0, 100);
+            if(dataLength!=0) {
+                System.arraycopy(packet, 9, data, 0, dataLength);
+            }
         }
 
     }
