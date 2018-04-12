@@ -4,7 +4,9 @@ import exceptions.InvalidPacketFormat;
 import util.Utils;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 
-public class Packet {
+import java.io.Serializable;
+
+public class Packet implements Serializable {
 
     private byte[] data = new byte[0];
     private int sequenceNumber = 0;
@@ -31,6 +33,8 @@ public class Packet {
         Packet pack = new Packet(packetel);
         pack.print();
     }
+
+    public Packet() {}
 
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
@@ -69,7 +73,7 @@ public class Packet {
         this.data = data;
     }
 
-    public int getSequenceNumber() {
+    public int getSequenceNumber(int i) {
         return sequenceNumber;
     }
 
@@ -77,7 +81,7 @@ public class Packet {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public int getAcknowledgment() {
+    public int getAcknowledgment(int i) {
         return acknowledgment;
     }
 
