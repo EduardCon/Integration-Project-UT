@@ -154,6 +154,10 @@ public class Client {
         packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket) ;
     }
 
+    public void receiveFromProcessingLayer(String message) {
+        System.out.println(message);
+    }
+
     /**
      * Get the listening port.
      * @return The listening port.
