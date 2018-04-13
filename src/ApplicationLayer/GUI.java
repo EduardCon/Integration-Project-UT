@@ -1,4 +1,4 @@
-package basicGUI;
+package ApplicationLayer;
 
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
@@ -7,10 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import javax.swing.SwingUtilities;
 import javax.swing.JScrollPane;
 
-import java.awt.Color;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;

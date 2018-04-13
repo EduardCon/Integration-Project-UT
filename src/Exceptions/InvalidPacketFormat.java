@@ -1,6 +1,4 @@
-package exceptions;
-
-import util.Utils;
+package Exceptions;
 
 public class InvalidPacketFormat extends NetworkException {
 
