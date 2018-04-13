@@ -29,7 +29,7 @@ public class NetworkHandlerReceiver extends Thread {
     /**
      * Buffer.
      */
-    private byte[] buf = new byte[256];
+    private byte[] buf = new byte[2048];
 
     /**
      * Constructor.
@@ -67,6 +67,7 @@ public class NetworkHandlerReceiver extends Thread {
             while(true) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
+                System.out.println("RECEIVED");
                 this.sendToProcessingLayer(packet.getData());
             }
         } catch (IOException e) {
