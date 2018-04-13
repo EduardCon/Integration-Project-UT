@@ -1,6 +1,7 @@
 package TransportLayer;
 
 import ApplicationLayer.Client;
+import ProcessingLayer.Packet;
 import Util.Utils;
 
 import java.io.IOException;
@@ -14,11 +15,6 @@ import java.net.UnknownHostException;
  * The object that handles incoming packets.
  */
 public class NetworkHandlerReceiver extends Thread {
-
-    /**
-     * The client that instantiated this object.
-     */
-    private Client client;
 
     /**
      * The client's communication socket.
@@ -37,38 +33,41 @@ public class NetworkHandlerReceiver extends Thread {
 
     /**
      * Constructor.
-     * @param client The client instantiating this object.
      */
-    public NetworkHandlerReceiver(Client client, MulticastSocket socket) {
-        this.client = client;
+    public NetworkHandlerReceiver(MulticastSocket socket) {
         try {
             this.socket = socket;
             groupAddress = InetAddress.getByName(Utils.multiCastAddress);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace()
         }
         new Thread(this);
         this.start();
     }
 
+    public void sendToProcessingLayer(byte[] packet) {
+        try {
+            new Packet();
+            Packet p = (Packet) Packet.deserialize(packet);
+            p.receiveFromTransportLayer(packet);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     /**
      * Thread method.
      */
+
     public void run() {
         try {
             System.out.println("Listening...");
             while(true) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
-                String received = new String(packet.getData(), 0, packet.getLength());
-                System.out.println("Received: <" + received + "> from: " + packet.getAddress() + " on port: " + packet.getPort());
-                if("end".equals(received)) {
-                    socket.leaveGroup(groupAddress);
-                    socket.close();
-                    break;
-                }
+                this.sendToProcessingLayer(packet.getData());
             }
         } catch (IOException e) {
             e.printStackTrace();
