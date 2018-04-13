@@ -9,6 +9,9 @@ public class TUI {
     public static void main(String[] args) throws IOException {
         client=new Client("Eduard C");
         client.connect();
+
+        client.sendToProceessingLayer("CRISTIANO RONALDO", 54324);
         client.sendToProceessingLayer("CRISTIANO RONALDO", 54322);
+
     }
 }

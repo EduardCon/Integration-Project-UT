@@ -1,7 +1,6 @@
 package ApplicationLayer;
 
 import ProcessingLayer.Packet;
-import TransportLayer.BroadcastHandler;
 import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
@@ -95,12 +94,14 @@ public class Client {
             //Join the multicast group using the client's socket.
             this.socket.joinGroup(groupAddress);
 
+            this.receiver = new NetworkHandlerReceiver(this.socket);
+            this.broadcastSender = new BroadcastHandler(this);
+            this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.receiver = new NetworkHandlerReceiver(this.socket);
-        //this.broadcastSender = new BroadcastHandler(this);
-        //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
+
 
 
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
