@@ -82,10 +82,19 @@ public class Client {
     public void connect() {
 
         try {
+            //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.listeningPort);
-            this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
+
+            //Join the multicast group using the client's socket.
             this.socket.joinGroup(groupAddress);
+
+            //Get the multicast group address.
+            this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
+
+            //Create a new socket for the group's listening port.
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
+
+            //Join the multicast group using the group's socket.
             this.groupSocket.joinGroup(InetAddress.getByName(Utils.multiCastAddress));
         } catch (IOException e) {
             e.printStackTrace();
