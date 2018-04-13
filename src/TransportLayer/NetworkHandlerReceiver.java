@@ -39,7 +39,7 @@ public class NetworkHandlerReceiver extends Thread {
             this.socket = socket;
             groupAddress = InetAddress.getByName(Utils.multiCastAddress);
         } catch (UnknownHostException e) {
-            e.printStackTrace()
+            e.printStackTrace();
         }
         new Thread(this);
         this.start();

@@ -99,9 +99,9 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.receiver = new NetworkHandlerReceiver(this, this.socket);
-        this.broadcastSender = new BroadcastHandler(this);
-        this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
+        this.receiver = new NetworkHandlerReceiver(this.socket);
+        //this.broadcastSender = new BroadcastHandler(this);
+        //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
 
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
