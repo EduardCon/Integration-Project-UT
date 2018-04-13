@@ -90,6 +90,9 @@ public class Packet implements Serializable{
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(out);
         os.writeObject(obj);
+        System.out.println(obj);
+        System.out.println(os);
+        System.out.println(out.toByteArray());
         return out.toByteArray();
     }
 
