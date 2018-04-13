@@ -1,8 +1,11 @@
 package ProcessingLayer;
 
 import Exceptions.InvalidPacketFormat;
+import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
+
+import java.net.MulticastSocket;
 
 public class Packet {
 
@@ -61,7 +64,7 @@ public class Packet {
 
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message) {
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) {
         Packet packet = new Packet();
         packet.setSourcePort(listeningPort);
         packet.setDestinationPort(destinationPort);
@@ -72,10 +75,12 @@ public class Packet {
         packet.setWindowSize(10);
         packet.setNextHop((byte) 0);
         packet.setData(message);
-        this.sendToTransportLayer(packet);
+        this.sendToTransportLayer(packet, socket);
     }
 
-    public void sendToTransportLayer(Packet p){
+    public void sendToTransportLayer(Packet p, MulticastSocket socket){
+        NetworkHandlerSender sender = new NetworkHandlerSender(socket);
+        sender.receiveFromProcessingLayer(p);
 
     }
 

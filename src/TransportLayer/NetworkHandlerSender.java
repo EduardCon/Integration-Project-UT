@@ -18,11 +18,6 @@ import java.net.UnknownHostException;
 public class NetworkHandlerSender {
 
     /**
-     * The client that instantiated this object.
-     */
-    private Client client;
-
-    /**
      * The address of the multicast group.
      */
     private InetAddress groupAddress;
@@ -36,27 +31,8 @@ public class NetworkHandlerSender {
      * Constructor.
      * @param client The client that insantiates this object.
      */
-    public NetworkHandlerSender(Client client) {
-        this.client = client;
-        this.socket = this.client.getSocket();
-    }
-
-    /**
-     * Method for connecting to the multicast group.
-     */
-    public void connectToMultiCast() {
-        try {
-
-            this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
-            this.socket.joinGroup(groupAddress);
-
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public NetworkHandlerSender(MulticastSocket socket) {
+        this.socket = socket;
     }
 
     /**

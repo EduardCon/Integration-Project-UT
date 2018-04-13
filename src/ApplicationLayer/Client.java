@@ -63,6 +63,8 @@ public class Client {
      */
     private MulticastSocket groupSocket;
 
+    private InetAddress groupAddress;
+
     /**
      * Client constructor.
      * @param name The name of the Client.
@@ -81,13 +83,13 @@ public class Client {
 
         try {
             this.socket = new MulticastSocket(this.listeningPort);
+            this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
+            this.socket.joinGroup(groupAddress);
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
             this.groupSocket.joinGroup(InetAddress.getByName(Utils.multiCastAddress));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.sender = new NetworkHandlerSender(this);
-        this.sender.connectToMultiCast();
         this.receiver = new NetworkHandlerReceiver(this, this.socket);
         this.broadcastSender = new BroadcastHandler(this);
         this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
@@ -140,7 +142,7 @@ public class Client {
      */
     public void sendToProceessingLayer(String message, int port) throws IOException {
         Packet packet = new Packet();
-        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes());
+        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket) ;
     }
 
     /**
