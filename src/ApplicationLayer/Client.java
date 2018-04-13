@@ -82,17 +82,25 @@ public class Client {
     public void connect() {
 
         try {
+            //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.listeningPort);
+
+            //Get the multicast group address.
             this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
-            this.socket.joinGroup(groupAddress);
+            //Create a new socket for the group's listening port.
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
+            //Join the multicast group using the group's socket.
             this.groupSocket.joinGroup(InetAddress.getByName(Utils.multiCastAddress));
+
+            //Join the multicast group using the client's socket.
+            this.socket.joinGroup(groupAddress);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.receiver = new NetworkHandlerReceiver(this, this.socket);
-        this.broadcastSender = new BroadcastHandler(this);
-        this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
+        this.receiver = new NetworkHandlerReceiver(this.socket);
+        //this.broadcastSender = new BroadcastHandler(this);
+        //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
 
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
@@ -143,6 +151,10 @@ public class Client {
     public void sendToProceessingLayer(String message, int port) throws IOException {
         Packet packet = new Packet();
         packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket) ;
+    }
+
+    public void receiveFromProcessingLayer(String message) {
+        System.out.println(message);
     }
 
     /**

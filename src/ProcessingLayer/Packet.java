@@ -24,21 +24,8 @@ public class Packet implements Serializable{
     private int packetType;
 
 
-
-    public static void main (String[] args) throws InvalidPacketFormat {
-        byte[] packetel= new byte[10000000];
-        packetel[0] = 2;
-        String message = "Salut ";
-        String message1 = "Boss!";
-        byte[] arr = message.getBytes();
-        byte[] arr1 = message1.getBytes();
-        System.arraycopy(arr, 0, packetel, 9, arr.length);
-        Packet pack = new Packet(packetel);
-        pack.print();
-    }
-
     public Packet() {}
-
+ 
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
         if(packetType == Utils.nullPacket) {
@@ -105,7 +92,11 @@ public class Packet implements Serializable{
 
     public void receiveFromTransportLayer(byte[] data) throws IOException, ClassNotFoundException {
         Packet p = (Packet) deserialize(data);
-        p.getData();
+        sendToaApplicationLayer(p.getData().toString());
+    }
+
+    public void sendToaApplicationLayer(String message) {
+        System.out.println(message);
     }
 
     public void print() {System.out.println(new String(this.getData())); }

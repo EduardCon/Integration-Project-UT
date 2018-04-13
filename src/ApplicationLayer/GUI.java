@@ -1,5 +1,7 @@
 package ApplicationLayer;
 
+import javafx.scene.input.KeyCode;
+
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
@@ -15,6 +17,8 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class GUI {
     GUI GUI ;
@@ -87,7 +91,16 @@ public class GUI {
         sendMsg.addActionListener((new sendMessageButtonListener()));
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470,300);
-    }
+        msgBox.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                    if(e.getKeyCode() ==KeyEvent.VK_ENTER){
+                        chatBox.setText((msgBox.getText()));
+                    }
+                }
+            });
+        });
+
 
     class sendMessageButtonListener implements ActionListener{
         public void actionPerformed (ActionEvent event) {
