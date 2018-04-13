@@ -14,11 +14,13 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
+import static ProcessingLayer.Packet.serialize;
+
 
 /**
  * Object that handles outgoing packets.
  */
-public class NetworkHandlerSender implements Serializable {
+public class NetworkHandlerSender {
 
     /**
      * The address of the multicast group.
@@ -38,13 +40,6 @@ public class NetworkHandlerSender implements Serializable {
         this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
     }
 
-    public static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(out);
-        os.writeObject(obj);
-        return out.toByteArray();
-    }
-
     /**
      */
 
@@ -58,7 +53,7 @@ public class NetworkHandlerSender implements Serializable {
     public void receiveFromProcessingLayer(Packet p) {
         try {
             int port = p.getDestinationPort();
-            byte[] serializedPacket = this.serialize(p);
+            byte[] serializedPacket = serialize(p);
             this.send(serializedPacket, port);
         } catch (IOException e) {
             e.printStackTrace();
