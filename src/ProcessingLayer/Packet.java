@@ -24,9 +24,8 @@ public class Packet implements Serializable{
     private int packetType;
 
 
-
     public Packet() {}
-
+ 
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
         if(packetType == Utils.nullPacket) {
