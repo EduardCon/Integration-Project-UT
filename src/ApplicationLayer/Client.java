@@ -71,7 +71,7 @@ public class Client {
      */
     public Client(String name) {
         this.name = name;
-        this.listeningPort = this.findClientPort();
+        this.listeningPort = 4343;
         this.deviceNo = this.listeningPort % 10;
     }
 

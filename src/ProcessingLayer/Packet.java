@@ -1,7 +1,6 @@
 package ProcessingLayer;
 
 import Exceptions.InvalidPacketFormat;
-import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
@@ -74,18 +73,25 @@ public class Packet implements Serializable{
     }
 
     public static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(out);
-        os.writeObject(obj);
-        System.out.println(obj);
-        System.out.println(os);
-        System.out.println(out.toByteArray());
-        return out.toByteArray();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(obj);
+        oos.flush();
+        oos.close();
+        bos.close();
+        byte [] data = bos.toByteArray();
+        return data;
     }
 
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
+        is.close();
+        in.close();
+        System.out.println("-------------------Deserialize");
+        System.out.println(in);
+        System.out.println(is);
+        System.out.println(is.readObject());
         return is.readObject();
     }
 
