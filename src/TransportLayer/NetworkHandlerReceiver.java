@@ -29,7 +29,7 @@ public class NetworkHandlerReceiver extends Thread {
     /**
      * Buffer.
      */
-    private byte[] buf = new byte[256];
+    private byte[] buf = new byte[2048];
 
     /**
      * Constructor.

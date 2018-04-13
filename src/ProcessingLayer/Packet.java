@@ -23,20 +23,6 @@ public class Packet implements Serializable{
     private int destinationPort = 0;
     private int packetType;
 
-
-
-    public static void main (String[] args) throws InvalidPacketFormat {
-        byte[] packetel= new byte[10000000];
-        packetel[0] = 2;
-        String message = "Salut ";
-        String message1 = "Boss!";
-        byte[] arr = message.getBytes();
-        byte[] arr1 = message1.getBytes();
-        System.arraycopy(arr, 0, packetel, 9, arr.length);
-        Packet pack = new Packet(packetel);
-        pack.print();
-    }
-
     public Packet() {}
 
     public Packet(byte[] packet) throws InvalidPacketFormat {
