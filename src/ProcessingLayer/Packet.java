@@ -5,10 +5,11 @@ import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
+import java.io.*;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-public class Packet {
+public class Packet implements Serializable{
 
     private byte[] data = new byte[0];
     private int sequenceNumber = 0;
@@ -83,6 +84,19 @@ public class Packet {
         NetworkHandlerSender sender = new NetworkHandlerSender(socket);
         sender.receiveFromProcessingLayer(p);
 
+    }
+
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(obj);
+        return out.toByteArray();
+    }
+
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = new ObjectInputStream(in);
+        return is.readObject();
     }
 
     public void print() {System.out.println(new String(this.getData())); }
