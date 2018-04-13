@@ -93,7 +93,7 @@ public class Packet implements Serializable{
     }
 
     public void sendToaApplicationLayer(String message) {
-        System.out.println(message);
+        System.out.println(message.toString());
     }
 
     public void print() {System.out.println(new String(this.getData())); }

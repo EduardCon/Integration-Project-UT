@@ -67,7 +67,6 @@ public class NetworkHandlerReceiver extends Thread {
             while(true) {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
-                System.out.println("RECEIVED");
                 this.sendToProcessingLayer(packet.getData());
             }
         } catch (IOException e) {

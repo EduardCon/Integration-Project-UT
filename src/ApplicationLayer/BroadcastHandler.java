@@ -1,4 +1,4 @@
-package TransportLayer;
+package ApplicationLayer;
 
 import ApplicationLayer.Client;
 import Util.Utils;
@@ -12,12 +12,11 @@ import java.util.concurrent.TimeUnit;
 
 public class BroadcastHandler extends Thread {
 
-    private Client client;
     private int groupPort;
     private MulticastSocket groupMulticastSocket;
     private InetAddress groupAddress;
-    private String message;
-
+    private final String message;
+    private Client client;
 
     public BroadcastHandler(Client client) {
         this.client = client;
@@ -28,20 +27,20 @@ public class BroadcastHandler extends Thread {
             e.printStackTrace();
         }
         this.groupMulticastSocket = this.client.getGroupSocket();
-        message = "Client " + this.client.getName() + " is connected on port: " + this.client.getListeningPort();
+        message = "Client " + this.client.getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort;
 
         new Thread(this);
         this.start();
     }
 
     public void run() {
-        DatagramPacket broadcast = new DatagramPacket(this.message.getBytes(), this.message.length(), this.groupAddress, this.groupPort);
         try {
-            this.groupMulticastSocket.send(broadcast);
-            TimeUnit.SECONDS.sleep(1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            while(true) {
+                System.out.println("Sending broadcast!");
+                this.client.sendToProceessingLayer(this.message, Utils.multiCastGroupPort);
+                TimeUnit.SECONDS.sleep(1);
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
