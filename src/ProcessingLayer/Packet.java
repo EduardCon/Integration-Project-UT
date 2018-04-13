@@ -99,6 +99,12 @@ public class Packet implements Serializable{
         return is.readObject();
     }
 
+
+    public void receiveFromTransportLayer(byte[] data) throws IOException, ClassNotFoundException {
+        Packet p = (Packet) deserialize(data);
+        p.getData();
+    }
+
     public void print() {System.out.println(new String(this.getData())); }
 
     public byte[] getData() {
