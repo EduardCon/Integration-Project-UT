@@ -1,5 +1,9 @@
-package TransportLayer;
+package ApplicationLayer;
 
+import ProcessingLayer.Packet;
+import TransportLayer.BroadcastHandler;
+import TransportLayer.NetworkHandlerReceiver;
+import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
 import java.io.IOException;
@@ -59,23 +63,7 @@ public class Client {
      */
     private MulticastSocket groupSocket;
 
-
-    /**
-     * Main function used for testing.
-     * @param args
-     */
-    public static final void main(String[] args) {
-        Client c = new Client("edi");
-        c.findClientPort();
-        c.connect();
-        try {
-            c.send("what", 54322);
-            c.send("the", 54322);
-            c.send("fuck", 54321);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private InetAddress groupAddress;
 
     /**
      * Client constructor.
@@ -94,17 +82,25 @@ public class Client {
     public void connect() {
 
         try {
+            //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.listeningPort);
+
+            //Get the multicast group address.
+            this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
+            //Create a new socket for the group's listening port.
             this.groupSocket = new MulticastSocket(Utils.multiCastGroupPort);
+            //Join the multicast group using the group's socket.
             this.groupSocket.joinGroup(InetAddress.getByName(Utils.multiCastAddress));
+
+            //Join the multicast group using the client's socket.
+            this.socket.joinGroup(groupAddress);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.sender = new NetworkHandlerSender(this);
-        this.sender.connectToMultiCast();
-        this.receiver = new NetworkHandlerReceiver(this, this.socket);
-        this.broadcastSender = new BroadcastHandler(this);
-        this.broadcastReceiver = new NetworkHandlerReceiver(this, this.groupSocket);
+        this.receiver = new NetworkHandlerReceiver(this.socket);
+        //this.broadcastSender = new BroadcastHandler(this);
+        //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
 
         System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
@@ -152,8 +148,13 @@ public class Client {
      * @param port The destination port.
      * @throws IOException
      */
-    public void send(String message, int port) throws IOException {
-        this.sender.send(message, port);
+    public void sendToProceessingLayer(String message, int port) throws IOException {
+        Packet packet = new Packet();
+        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket) ;
+    }
+
+    public void receiveFromProcessingLayer(String message) {
+        System.out.println(message);
     }
 
     /**

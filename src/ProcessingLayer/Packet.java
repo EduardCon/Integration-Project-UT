@@ -1,11 +1,15 @@
 package ProcessingLayer;
 
 import Exceptions.InvalidPacketFormat;
+import TransportLayer.NetworkHandlerReceiver;
+import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
-import java.io.Serializable;
+import java.io.*;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 
-public class Packet implements Serializable {
+public class Packet implements Serializable{
 
     private byte[] data = new byte[0];
     private int sequenceNumber = 0;
@@ -20,21 +24,8 @@ public class Packet implements Serializable {
     private int packetType;
 
 
-
-    public static void main (String[] args) throws InvalidPacketFormat {
-        byte[] packetel= new byte[10000000];
-        packetel[0] = 2;
-        String message = "Salut ";
-        String message1 = "Boss!";
-        byte[] arr = message.getBytes();
-        byte[] arr1 = message1.getBytes();
-        System.arraycopy(arr, 0, packetel, 9, arr.length);
-        Packet pack = new Packet(packetel);
-        pack.print();
-    }
-
     public Packet() {}
-
+ 
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
         if(packetType == Utils.nullPacket) {
@@ -60,6 +51,49 @@ public class Packet implements Serializable {
             }
         }
 
+    }
+
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
+        Packet packet = new Packet();
+        packet.setSourcePort(listeningPort);
+        packet.setDestinationPort(destinationPort);
+        packet.setSequenceNumber(0);
+        packet.setAcknowledgment(0);
+        packet.setAckFlag((byte) 0);
+        packet.setFinFlag((byte) 0);
+        packet.setWindowSize(10);
+        packet.setNextHop((byte) 0);
+        packet.setData(message);
+        this.sendToTransportLayer(packet, socket);
+    }
+
+    public void sendToTransportLayer(Packet p, MulticastSocket socket) throws UnknownHostException {
+        NetworkHandlerSender sender = new NetworkHandlerSender(socket);
+        sender.receiveFromProcessingLayer(p);
+
+    }
+
+    public static byte[] serialize(Object obj) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(out);
+        os.writeObject(obj);
+        return out.toByteArray();
+    }
+
+    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        ObjectInputStream is = new ObjectInputStream(in);
+        return is.readObject();
+    }
+
+
+    public void receiveFromTransportLayer(byte[] data) throws IOException, ClassNotFoundException {
+        Packet p = (Packet) deserialize(data);
+        sendToaApplicationLayer(p.getData().toString());
+    }
+
+    public void sendToaApplicationLayer(String message) {
+        System.out.println(message);
     }
 
     public void print() {System.out.println(new String(this.getData())); }
