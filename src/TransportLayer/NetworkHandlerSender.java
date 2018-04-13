@@ -32,10 +32,10 @@ public class NetworkHandlerSender implements Serializable {
 
     /**
      * Constructor.
-     * @param client The client that insantiates this object.
      */
-    public NetworkHandlerSender(MulticastSocket socket) {
+    public NetworkHandlerSender(MulticastSocket socket) throws UnknownHostException {
         this.socket = socket;
+        this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
     }
 
     public static byte[] serialize(Object obj) throws IOException {
@@ -46,23 +46,20 @@ public class NetworkHandlerSender implements Serializable {
     }
 
     /**
-     * Method for sending a message.
-     * @param message The message to be sent.
-     * @param port The destination port.
-     * @throws IOException
      */
 
-    public void send(byte[] packet) throws IOException {
+    public void send(byte[] packet, int port) throws IOException {
 
-        DatagramPacket toSend = new DatagramPacket(packet, packet.length, this.groupAddress, );
+        DatagramPacket toSend = new DatagramPacket(packet, packet.length, this.groupAddress, port);
         socket.send(toSend);
-        System.out.println("Sent <" + message + "> to " + this.groupAddress + " on port: " + port);
+        System.out.println("Sent <" + packet + "> to " + this.groupAddress + " on port: " + port);
     }
 
     public void receiveFromProcessingLayer(Packet p) {
         try {
+            int port = p.getDestinationPort();
             byte[] serializedPacket = this.serialize(p);
-            this.send(serializedPacket);
+            this.send(serializedPacket, port);
         } catch (IOException e) {
             e.printStackTrace();
         }
