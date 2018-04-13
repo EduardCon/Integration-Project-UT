@@ -6,6 +6,7 @@ import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 
 public class Packet {
 
@@ -64,7 +65,7 @@ public class Packet {
 
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) {
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
         Packet packet = new Packet();
         packet.setSourcePort(listeningPort);
         packet.setDestinationPort(destinationPort);
@@ -78,7 +79,7 @@ public class Packet {
         this.sendToTransportLayer(packet, socket);
     }
 
-    public void sendToTransportLayer(Packet p, MulticastSocket socket){
+    public void sendToTransportLayer(Packet p, MulticastSocket socket) throws UnknownHostException {
         NetworkHandlerSender sender = new NetworkHandlerSender(socket);
         sender.receiveFromProcessingLayer(p);
 
