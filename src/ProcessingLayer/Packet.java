@@ -1,11 +1,10 @@
 package ProcessingLayer;
 
 import Exceptions.InvalidPacketFormat;
+import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
-import java.io.Serializable;
-
-public class Packet implements Serializable {
+public class Packet {
 
     private byte[] data = new byte[0];
     private int sequenceNumber = 0;
@@ -59,6 +58,24 @@ public class Packet implements Serializable {
                 System.arraycopy(packet, 9, data, 0, dataLength);
             }
         }
+
+    }
+
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message) {
+        Packet packet = new Packet();
+        packet.setSourcePort(listeningPort);
+        packet.setDestinationPort(destinationPort);
+        packet.setSequenceNumber(0);
+        packet.setAcknowledgment(0);
+        packet.setAckFlag((byte) 0);
+        packet.setFinFlag((byte) 0);
+        packet.setWindowSize(10);
+        packet.setNextHop((byte) 0);
+        packet.setData(message);
+        this.sendToTransportLayer(packet);
+    }
+
+    public void sendToTransportLayer(Packet p){
 
     }
 

@@ -1,5 +1,9 @@
-package TransportLayer;
+package ApplicationLayer;
 
+import ProcessingLayer.Packet;
+import TransportLayer.BroadcastHandler;
+import TransportLayer.NetworkHandlerReceiver;
+import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
 import java.io.IOException;
@@ -58,24 +62,6 @@ public class Client {
      * The socket used for communicating with the whole multicast group.
      */
     private MulticastSocket groupSocket;
-
-
-    /**
-     * Main function used for testing.
-     * @param args
-     */
-    public static final void main(String[] args) {
-        Client c = new Client("edi");
-        c.findClientPort();
-        c.connect();
-        try {
-            c.send("what", 54322);
-            c.send("the", 54322);
-            c.send("fuck", 54321);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * Client constructor.
@@ -152,8 +138,9 @@ public class Client {
      * @param port The destination port.
      * @throws IOException
      */
-    public void send(String message, int port) throws IOException {
-        this.sender.send(message, port);
+    public void sendToProceessingLayer(String message, int port) throws IOException {
+        Packet packet = new Packet();
+        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes());
     }
 
     /**
