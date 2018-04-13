@@ -102,7 +102,11 @@ public class Packet implements Serializable{
 
     public void receiveFromTransportLayer(byte[] data) throws IOException, ClassNotFoundException {
         Packet p = (Packet) deserialize(data);
-        p.getData();
+        sendToaApplicationLayer(p.getData().toString());
+    }
+
+    public void sendToaApplicationLayer(String message) {
+
     }
 
     public void print() {System.out.println(new String(this.getData())); }
