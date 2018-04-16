@@ -97,7 +97,7 @@ public class Packet implements Serializable{
         return arr;
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket, int packetType) throws UnknownHostException {
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException {
 
           this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
