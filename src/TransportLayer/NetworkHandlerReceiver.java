@@ -4,13 +4,20 @@ import ApplicationLayer.Client;
 import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
-import com.sun.org.apache.xpath.internal.operations.Mult;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 
 
 /**
@@ -50,7 +57,7 @@ public class NetworkHandlerReceiver extends Thread {
         this.start();
     }
 
-    public void sendToProcessingLayer(byte[] data) {
+    public void sendToProcessingLayer(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException {
         try {
             Packet p = new Packet(data, this.client);
             p.receiveFromTransportLayer();
@@ -74,6 +81,22 @@ public class NetworkHandlerReceiver extends Thread {
                 this.sendToProcessingLayer(packet.getData());
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidParameterSpecException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
         }
     }

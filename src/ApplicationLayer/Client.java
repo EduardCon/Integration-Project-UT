@@ -5,11 +5,18 @@ import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.Enumeration;
 
 /**
@@ -151,7 +158,7 @@ public class Client {
      * @param port The destination port.
      * @throws IOException
      */
-    public void sendToProceessingLayer(String message, int port) throws IOException {
+    public void sendToProceessingLayer(String message, int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, InvalidKeyException, InvalidKeySpecException {
         Packet packet = new Packet();
         packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
     }

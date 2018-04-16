@@ -1,14 +1,24 @@
 package ProcessingLayer;
 
 import ApplicationLayer.Client;
+import EncryptionLayer.Encryption;
 import Exceptions.InvalidPacketFormat;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 
 public class Packet implements Serializable{
 
@@ -97,9 +107,9 @@ public class Packet implements Serializable{
         return arr;
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException {
-
-          this.setPacketType((byte) packetType);
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException, NoSuchPaddingException, BadPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidParameterSpecException {
+        Encryption encryption = new Encryption();
+        this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
           this.setSequenceNumber(0);
@@ -108,7 +118,7 @@ public class Packet implements Serializable{
           this.setFinFlag((byte) 0 );
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
-          this.setData(message);
+          this.setData(encryption.encrypt(message).getBytes());
           this.sendToTransportLayer(this, socket);
     }
 
@@ -119,12 +129,12 @@ public class Packet implements Serializable{
     }
 
 
-    public void receiveFromTransportLayer() throws IOException, ClassNotFoundException {
+    public void receiveFromTransportLayer() throws IOException, ClassNotFoundException, NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidParameterSpecException, InvalidAlgorithmParameterException {
         //System.out.println(this.getData());
-
+        Encryption encryption = new Encryption();
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " + new String(this.getData()));
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.getData())));
         sendToApplicationLayer(message);
     }
 
