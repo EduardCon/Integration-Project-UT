@@ -108,7 +108,7 @@ public class Packet implements Serializable{
     }
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException, NoSuchPaddingException, BadPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidParameterSpecException {
-        Encryption encryption = new Encryption();
+        //Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
@@ -119,7 +119,7 @@ public class Packet implements Serializable{
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
           this.setDataLength(message.getBytes().length);
-          this.setData(encryption.encrypt(message).getBytes());
+          //this.setData(encryption.encrypt(message).getBytes());
             this.setData(message.getBytes());
           this.sendToTransportLayer(this, socket);
     }
@@ -137,7 +137,7 @@ public class Packet implements Serializable{
         System.out.println(this.getData().length + " RECEIVED");
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.getData())));
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage() /*encryption.decrypt(new String(this.getData()))*/ );
         sendToApplicationLayer(message);
     }
 
@@ -146,6 +146,14 @@ public class Packet implements Serializable{
     }
 
     public void print() {System.out.println(new String(this.getData())); }
+
+
+    public String getMessage() {
+        byte[] data = new byte[this.dataLength];
+        System.arraycopy(this.data, 0, data, 0, this.dataLength);
+        String message = new String(data);
+        return message;
+    }
 
     public byte[] getData() {
         return data;
