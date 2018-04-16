@@ -1,6 +1,5 @@
 package TransportLayer;
 
-import ApplicationLayer.Client;
 import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
