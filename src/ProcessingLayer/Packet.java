@@ -22,7 +22,7 @@ import java.security.spec.InvalidParameterSpecException;
 
 public class Packet implements Serializable{
 
-    private byte[] data = new byte[0];
+    private byte[] data = new byte[128];
     private int sequenceNumber = 0;
     private int acknowledgment = 0;
     private byte destination = 0;
@@ -69,8 +69,6 @@ public class Packet implements Serializable{
             nextHop = packet[23];
 
             dataLength = fromByteArray(packet, 24);
-
-            data = new byte[dataLength];
 
            // System.out.println(packet.length);
             System.arraycopy(packet, 28, data, 0, dataLength);
@@ -154,8 +152,12 @@ public class Packet implements Serializable{
     }
 
     public void setData(byte[] data) {
-        this.data = data;
-        System.out.println(data.length + " SENT");
+        //this.data = data;
+        System.arraycopy(data, 0, this.data, 0, this.dataLength);
+        for(int i = this.dataLength; i < 128; i++) {
+            this.data[i] = (byte) 0;
+        }
+        System.out.println(this.data.length + " SENT");
     }
 
     public int getSequenceNumber() {
