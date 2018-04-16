@@ -1,11 +1,8 @@
 package ApplicationLayer;
 
-import ApplicationLayer.Client;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
@@ -44,13 +41,15 @@ public class BroadcastHandler extends Thread {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public void sendToProcessingLayer(String message) {
+    public void sendToProcessingLayer(String message) throws Exception {
         Packet packet = new Packet();
         try {
-            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message.getBytes(), this.client.getSocket(), 1);
+            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message, this.client.getSocket(), 1);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

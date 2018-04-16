@@ -63,6 +63,8 @@ public class NetworkHandlerReceiver extends Thread {
             p.receiveFromTransportLayer();
         } catch (IOException | ClassNotFoundException | InvalidPacketFormat e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 

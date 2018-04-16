@@ -5,18 +5,11 @@ import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.Enumeration;
 
 /**
@@ -79,7 +72,7 @@ public class Client {
      */
     public Client(String name) {
         this.name = name;
-        this.listeningPort = this.findClientPort();
+        //this.listeningPort = this.findClientPort();
         this.deviceNo = this.listeningPort % 10;
     }
 
@@ -91,7 +84,7 @@ public class Client {
 
         try {
             //Create a new socket for this client's listening port.
-            this.socket = new MulticastSocket(this.listeningPort);
+            this.socket = new MulticastSocket(4446);
 
             //Get the multicast group address.
             this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
@@ -161,7 +154,7 @@ public class Client {
      * @param port The destination port.
      * @throws IOException
      */
-    public void sendToProceessingLayer(String message, int port) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, InvalidKeyException, InvalidKeySpecException {
+    public void sendToProceessingLayer(String message, int port) throws Exception {
         Packet packet = new Packet();
         packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
     }

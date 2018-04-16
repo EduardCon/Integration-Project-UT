@@ -6,21 +6,10 @@ import Exceptions.InvalidPacketFormat;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
 
-public class Packet implements Serializable{
+public class Packet{
 
     private byte[] data = new byte[0];
     private int sequenceNumber = 0;
@@ -34,7 +23,10 @@ public class Packet implements Serializable{
     private int destinationPort = 0;
     private byte packetType;
     private Client client;
-    private static final long serialVersionUID = 7829136421241571165L;
+    private static final String MAC_ALGORITHM = "HMACSHA256";
+    private static final String HEX_AES_KEY =
+            "B22E2B9A77C6DE2B9A779E7B2C6DA76E51C829E725EC8478A76E51C825EC8478";
+    private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
 
     public Packet() {}
 
@@ -107,7 +99,7 @@ public class Packet implements Serializable{
         return arr;
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException, NoSuchPaddingException, BadPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidParameterSpecException {
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
         Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
@@ -118,7 +110,7 @@ public class Packet implements Serializable{
           this.setFinFlag((byte) 0 );
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
-          this.setData(encryption.encrypt(message).getBytes());
+          this.setData(encryption.encrypt(message, HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM).getBytes());
           this.sendToTransportLayer(this, socket);
     }
 
@@ -129,12 +121,14 @@ public class Packet implements Serializable{
     }
 
 
-    public void receiveFromTransportLayer() throws IOException, ClassNotFoundException, NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidParameterSpecException, InvalidAlgorithmParameterException {
+    public void receiveFromTransportLayer() throws Exception {
         //System.out.println(this.getData());
+        System.out.println(new String(this.data).length());
         Encryption encryption = new Encryption();
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.getData())));
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.data), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM));
+
         sendToApplicationLayer(message);
     }
 
