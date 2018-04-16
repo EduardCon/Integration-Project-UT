@@ -1,12 +1,15 @@
 package ApplicationLayer;
 
+import ApplicationLayer.Client;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
@@ -49,13 +52,20 @@ public class BroadcastHandler extends Thread {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void sendToProcessingLayer(String message) {
+        Packet packet = new Packet();
+        try {
+            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message, this.client.getSocket(), 1);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
         } catch (InvalidKeySpecException e) {
             e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidKeyException e) {
             e.printStackTrace();
@@ -65,14 +75,7 @@ public class BroadcastHandler extends Thread {
             e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void sendToProcessingLayer(String message) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, UnsupportedEncodingException, InvalidKeySpecException {
-        Packet packet = new Packet();
-        try {
-            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message, this.client.getSocket(), 1);
-        } catch (UnknownHostException e) {
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
