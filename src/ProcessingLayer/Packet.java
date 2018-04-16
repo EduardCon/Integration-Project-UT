@@ -34,19 +34,19 @@ public class Packet implements Serializable{
         } else if(packetType == Utils.communicationPacket) {
             sourcePort = fromByteArray(packet, 1);
             //sourcePort = packet[1];
-            destination = packet[5];
+            destinationPort = fromByteArray(packet, 5);
             //destination = packet[2];
-            sequenceNumber = fromByteArray(packet, 6);
+            sequenceNumber = fromByteArray(packet, 9);
             //sequenceNumber = packet[3];
-            acknowledgment = fromByteArray(packet, 10);
+            acknowledgment = fromByteArray(packet, 13);
             //acknowledgment = packet[4];
-            ackFlag = packet[14];
+            ackFlag = packet[17];
             //ackFlag = packet[5];
-            finFlag = packet[15];
+            finFlag = packet[18];
             //finFlag = packet[6];
-            windowSize = fromByteArray(packet, 16);
+            windowSize = fromByteArray(packet, 19);
             //windowSize = packet[7];
-            nextHop = packet[20];
+            nextHop = packet[23];
             //nextHop = packet[8];
 
             //int dataLength = (Utils.convertToInt((byte)((packet[9]<<8) + (Utils.convertToInt(packet[10])))));
@@ -54,7 +54,7 @@ public class Packet implements Serializable{
 
 
             data = new byte[236];
-            System.arraycopy(packet, 21, data, 0, packet.length - 21);
+            System.arraycopy(packet, 24, data, 0, packet.length - 21);
 
 //            if(dataLength!=0) {
 //                System.arraycopy(packet, 9, data, 0, dataLength);
@@ -82,31 +82,42 @@ public class Packet implements Serializable{
         byte[] arr = new byte[256];
         arr[0] = this.getPacketType();
         System.arraycopy(toBytes(this.getSourcePort()), 0, arr, 1, 4);
-        arr[5] = this.getDestination();
-        System.arraycopy(toBytes(this.getSequenceNumber()), 0, arr, 6, 4);
-        System.arraycopy(toBytes(this.getAcknowledgment()), 0, arr, 10, 4);
-        arr[14] = this.getAckFlag();
-        arr[15] = this.getFinFlag();
-        System.arraycopy(toBytes(this.getWindowSize()), 0 , arr, 16, 4);
-        arr[20] = this.getNextHop();
-        System.arraycopy(this.getData(), 0, arr, 21, this.getData().length);
+        System.arraycopy(toBytes(this.getDestinationPort()), 0, arr, 5, 4);
+        System.arraycopy(toBytes(this.getSequenceNumber()), 0, arr, 9, 4);
+        System.arraycopy(toBytes(this.getAcknowledgment()), 0, arr, 13, 4);
+        arr[17] = this.getAckFlag();
+        arr[18] = this.getFinFlag();
+        System.arraycopy(toBytes(this.getWindowSize()), 0 , arr, 19, 4);
+        arr[23] = this.getNextHop();
+        System.arraycopy(this.getData(), 0, arr, 24, this.getData().length);
 
         return arr;
     }
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
-        Packet packet = new Packet();
-        packet.setPacketType((byte) 1);
-        packet.setSourcePort(listeningPort);
-        packet.setDestinationPort(destinationPort);
-        packet.setSequenceNumber(0);
-        packet.setAcknowledgment(0);
-        packet.setAckFlag((byte) 0);
-        packet.setFinFlag((byte) 0);
-        packet.setWindowSize(10);
-        packet.setNextHop((byte) 0);
-        packet.setData(message);
-        this.sendToTransportLayer(packet, socket);
+//        Packet packet = new Packet();
+//        packet.setPacketType((byte) 1);
+//        packet.setSourcePort(listeningPort);
+//        packet.setDestinationPort(destinationPort);
+//        packet.setSequenceNumber(0);
+//        packet.setAcknowledgment(0);
+//        packet.setAckFlag((byte) 0);
+//        packet.setFinFlag((byte) 0);
+//        packet.setWindowSize(10);
+//        packet.setNextHop((byte) 0);
+//        packet.setData(message);
+//        this.sendToTransportLayer(packet, socket);
+          this.setPacketType((byte) 1);
+          this.setSourcePort(listeningPort);
+          this.setDestinationPort(destinationPort);
+          this.setSequenceNumber(0);
+          this.setAcknowledgment(0);
+          this.setAckFlag((byte) 0);
+          this.setFinFlag((byte) 0 );
+          this.setWindowSize(10);
+          this.setNextHop((byte) 0);
+          this.setData(message);
+          this.sendToTransportLayer(this, socket);
     }
 
     public void sendToTransportLayer(Packet p, MulticastSocket socket) throws UnknownHostException {
