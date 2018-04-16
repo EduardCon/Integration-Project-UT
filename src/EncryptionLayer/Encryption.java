@@ -35,8 +35,8 @@ public class Encryption {
         SecretKeySpec key = createSecretKey();
         String iv = string.split(":")[0];
         String message = string.split(":")[1];
-        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding ");
-        pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
+        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
         return new String(pbeCipher.doFinal(base64Decode(message)), "UTF-8");
     }
 
