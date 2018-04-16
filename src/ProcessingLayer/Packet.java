@@ -21,7 +21,7 @@ public class Packet implements Serializable{
     private int sourcePort = 0;
     private int destinationPort = 0;
     private int packetType;
-
+    private static final long serialVersionUID = 7829136421241571165L;
 
     public Packet() {}
  
@@ -86,13 +86,13 @@ public class Packet implements Serializable{
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
-        is.close();
-        in.close();
+        //is.close();
+        //in.close();
         System.out.println("-------------------Deserialize");
         System.out.println(in);
         System.out.println(is);
-        System.out.println(is.readObject());
-        return is.readObject();
+        System.out.println(is.readUTF());
+        return is.readUTF();
     }
 
 
