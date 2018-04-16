@@ -1,6 +1,7 @@
 package ApplicationLayer;
 
 import ApplicationLayer.Client;
+import ProcessingLayer.Packet;
 import Util.Utils;
 
 import java.io.IOException;
@@ -27,7 +28,8 @@ public class BroadcastHandler extends Thread {
             e.printStackTrace();
         }
         this.groupMulticastSocket = this.client.getGroupSocket();
-        message = "Client " + this.client.getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort;
+        message = "Client " + this.client.getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort +
+        " with listening port: " + this.client.getListeningPort();
 
         new Thread(this);
         this.start();
@@ -35,12 +37,21 @@ public class BroadcastHandler extends Thread {
 
     public void run() {
         try {
+            System.out.println("Sending broadcast!");
             while(true) {
-                System.out.println("Sending broadcast!");
-                this.client.sendToProceessingLayer(this.message, Utils.multiCastGroupPort);
-                TimeUnit.SECONDS.sleep(1);
+                this.sendToProcessingLayer(this.message);
+                TimeUnit.SECONDS.sleep(3);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendToProcessingLayer(String message) {
+        Packet packet = new Packet();
+        try {
+            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message.getBytes(), this.client.getSocket(), 1);
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }

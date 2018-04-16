@@ -27,29 +27,27 @@ public class Packet implements Serializable{
  
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
-        if(packetType == Utils.nullPacket) {
-            throw new InvalidPacketFormat();
-        } else if(packetType == Utils.tablePacket){
-            //TODO
-        } else if(packetType == Utils.communicationPacket) {
-            sourcePort = fromByteArray(packet, 1);
-            //sourcePort = packet[1];
-            destinationPort = fromByteArray(packet, 5);
-            //destination = packet[2];
-            sequenceNumber = fromByteArray(packet, 9);
-            //sequenceNumber = packet[3];
-            acknowledgment = fromByteArray(packet, 13);
-            //acknowledgment = packet[4];
-            ackFlag = packet[17];
-            //ackFlag = packet[5];
-            finFlag = packet[18];
-            //finFlag = packet[6];
-            windowSize = fromByteArray(packet, 19);
-            //windowSize = packet[7];
-            nextHop = packet[23];
-            //nextHop = packet[8];
 
-            //int dataLength = (Utils.convertToInt((byte)((packet[9]<<8) + (Utils.convertToInt(packet[10])))));
+        if(packetType == Utils.nullPacket) {
+
+            throw new InvalidPacketFormat();
+
+        } else {
+            sourcePort = fromByteArray(packet, 1);
+
+            destinationPort = fromByteArray(packet, 5);
+
+            sequenceNumber = fromByteArray(packet, 9);
+
+            acknowledgment = fromByteArray(packet, 13);
+
+            ackFlag = packet[17];
+
+            finFlag = packet[18];
+
+            windowSize = fromByteArray(packet, 19);
+
+            nextHop = packet[23];
 
 
 
@@ -57,14 +55,7 @@ public class Packet implements Serializable{
 
             System.out.println(packet.length);
             System.arraycopy(packet, 24, data, 0, packet.length - 24);
-
-
-
-//            if(dataLength!=0) {
-//                System.arraycopy(packet, 9, data, 0, dataLength);
-//            }
         }
-
     }
 
     public int fromByteArray(byte[] bytes, int i) {
@@ -98,20 +89,9 @@ public class Packet implements Serializable{
         return arr;
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
-//        Packet packet = new Packet();
-//        packet.setPacketType((byte) 1);
-//        packet.setSourcePort(listeningPort);
-//        packet.setDestinationPort(destinationPort);
-//        packet.setSequenceNumber(0);
-//        packet.setAcknowledgment(0);
-//        packet.setAckFlag((byte) 0);
-//        packet.setFinFlag((byte) 0);
-//        packet.setWindowSize(10);
-//        packet.setNextHop((byte) 0);
-//        packet.setData(message);
-//        this.sendToTransportLayer(packet, socket);
-          this.setPacketType((byte) 2);
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket, int packetType) throws UnknownHostException {
+
+          this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
           this.setSequenceNumber(0);

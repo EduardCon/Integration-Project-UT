@@ -95,6 +95,8 @@ public class Client {
             this.socket.joinGroup(groupAddress);
 
             this.receiver = new NetworkHandlerReceiver(this.socket);
+
+
             this.broadcastSender = new BroadcastHandler(this);
             this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
@@ -151,7 +153,7 @@ public class Client {
      */
     public void sendToProceessingLayer(String message, int port) throws IOException {
         Packet packet = new Packet();
-        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket) ;
+        packet.receiveFromApplicationLayer(port, listeningPort, message.getBytes(), this.socket, 2) ;
     }
 
     public void receiveFromProcessingLayer(String message) {
