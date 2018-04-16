@@ -98,10 +98,7 @@ public class Client {
 
             this.receiver = new NetworkHandlerReceiver(this, this.socket);
 
-
-
-            this.broadcastSender = new BroadcastHandler(this);
-            this.broadcastReceiver = new NetworkHandlerReceiver(this, groupSocket);
+            this.routingTable = new RoutingTable(this);
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -6,12 +6,23 @@ import Exceptions.InvalidPacketFormat;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 
-public class Packet{
+public class Packet implements Serializable{
 
-    private byte[] data = new byte[0];
+    private byte[] data = new byte[128];
     private int sequenceNumber = 0;
     private int acknowledgment = 0;
     private byte destination = 0;
@@ -21,12 +32,10 @@ public class Packet{
     private int windowSize = 0;
     private int sourcePort = 0;
     private int destinationPort = 0;
+    private int dataLength;
     private byte packetType;
     private Client client;
-    private static final String MAC_ALGORITHM = "HMACSHA256";
-    private static final String HEX_AES_KEY =
-            "B22E2B9A77C6DE2B9A779E7B2C6DA76E51C829E725EC8478A76E51C825EC8478";
-    private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
+    private static final long serialVersionUID = 7829136421241571165L;
 
     public Packet() {}
 
@@ -59,12 +68,10 @@ public class Packet{
 
             nextHop = packet[23];
 
-
-
-            data = new byte[236];
+            dataLength = fromByteArray(packet, 24);
 
            // System.out.println(packet.length);
-            System.arraycopy(packet, 24, data, 0, packet.length - 24);
+            System.arraycopy(packet, 28, data, 0, dataLength);
         }
     }
 
@@ -94,13 +101,14 @@ public class Packet{
         arr[18] = this.getFinFlag();
         System.arraycopy(toBytes(this.getWindowSize()), 0 , arr, 19, 4);
         arr[23] = this.getNextHop();
-        System.arraycopy(this.getData(), 0, arr, 24, this.getData().length);
+        System.arraycopy(toBytes(this.dataLength), 0, arr, 24, 4);
+        System.arraycopy(this.getData(), 0, arr, 28, this.getData().length);
 
         return arr;
     }
 
-    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
-        Encryption encryption = new Encryption();
+    public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException, NoSuchPaddingException, BadPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidParameterSpecException {
+        //Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
@@ -110,7 +118,9 @@ public class Packet{
           this.setFinFlag((byte) 0 );
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
-          this.setData(encryption.encrypt(message, HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM).getBytes());
+          this.setDataLength(message.getBytes().length);
+          //this.setData(encryption.encrypt(message).getBytes());
+            this.setData(message.getBytes());
           this.sendToTransportLayer(this, socket);
     }
 
@@ -121,14 +131,13 @@ public class Packet{
     }
 
 
-    public void receiveFromTransportLayer() throws Exception {
+    public void receiveFromTransportLayer() throws IOException, ClassNotFoundException, NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidParameterSpecException, InvalidAlgorithmParameterException {
         //System.out.println(this.getData());
-        System.out.println(new String(this.data).length());
         Encryption encryption = new Encryption();
+        System.out.println(this.getData().length + " RECEIVED");
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.data), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM));
-
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage() /*encryption.decrypt(new String(this.getData()))*/ );
         sendToApplicationLayer(message);
     }
 
@@ -138,12 +147,25 @@ public class Packet{
 
     public void print() {System.out.println(new String(this.getData())); }
 
+
+    public String getMessage() {
+        byte[] data = new byte[this.dataLength];
+        System.arraycopy(this.data, 0, data, 0, this.dataLength);
+        String message = new String(data);
+        return message;
+    }
+
     public byte[] getData() {
         return data;
     }
 
     public void setData(byte[] data) {
-        this.data = data;
+        //this.data = data;
+        System.arraycopy(data, 0, this.data, 0, this.dataLength);
+        for(int i = this.dataLength; i < 128; i++) {
+            this.data[i] = (byte) 0;
+        }
+        System.out.println(this.data.length + " SENT");
     }
 
     public int getSequenceNumber() {
@@ -168,6 +190,10 @@ public class Packet{
 
     public void setDestination(byte destination) {
         this.destination = destination;
+    }
+
+    public void setDataLength(int dataLength) {
+        this.dataLength = dataLength;
     }
 
     public byte getAckFlag() {

@@ -1,11 +1,22 @@
 package ApplicationLayer;
 
+import ApplicationLayer.Client;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.concurrent.TimeUnit;
 
 public class BroadcastHandler extends Thread {
@@ -41,16 +52,30 @@ public class BroadcastHandler extends Thread {
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    public void sendToProcessingLayer(String message) throws Exception {
+    public void sendToProcessingLayer(String message) {
         Packet packet = new Packet();
         try {
             packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message, this.client.getSocket(), 1);
         } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidParameterSpecException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
