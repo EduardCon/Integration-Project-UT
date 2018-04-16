@@ -1,6 +1,7 @@
 package TransportLayer;
 
 import ApplicationLayer.Client;
+import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
@@ -45,13 +46,14 @@ public class NetworkHandlerReceiver extends Thread {
         this.start();
     }
 
-    public void sendToProcessingLayer(byte[] packet) {
+    public void sendToProcessingLayer(byte[] data) {
         try {
-            new Packet();
-            Packet p = (Packet) Packet.deserialize(packet);
-            p.receiveFromTransportLayer(packet);
+            Packet p = new Packet(data);
+            p.receiveFromTransportLayer();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (InvalidPacketFormat invalidPacketFormat) {
+            invalidPacketFormat.printStackTrace();
         }
 
 

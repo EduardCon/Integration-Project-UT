@@ -11,7 +11,7 @@ public class TUI {
         client.connect();
 
         client.sendToProceessingLayer("CRISTIANO RONALDO", 54324);
-        client.sendToProceessingLayer("CRISTIANO RONALDO", 54322);
+        client.sendToProceessingLayer("CRISTIANO RONALDO", 54324);
 
     }
 }

@@ -20,8 +20,8 @@ public class Packet implements Serializable{
     private int windowSize = 0;
     private int sourcePort = 0;
     private int destinationPort = 0;
-    private int packetType;
-
+    private byte packetType;
+    private static final long serialVersionUID = 7829136421241571165L;
 
     public Packet() {}
  
@@ -32,24 +32,66 @@ public class Packet implements Serializable{
         } else if(packetType == Utils.tablePacket){
             //TODO
         } else if(packetType == Utils.communicationPacket) {
-            sourcePort = packet[1];
-            destination = packet[2];
-            sequenceNumber = packet[3];
-            acknowledgment = packet[4];
-            ackFlag = packet[5];
-            finFlag = packet[6];
-            windowSize = packet[7];
-            nextHop = packet[8];
+            sourcePort = fromByteArray(packet, 1);
+            //sourcePort = packet[1];
+            destination = packet[5];
+            //destination = packet[2];
+            sequenceNumber = fromByteArray(packet, 6);
+            //sequenceNumber = packet[3];
+            acknowledgment = fromByteArray(packet, 10);
+            //acknowledgment = packet[4];
+            ackFlag = packet[14];
+            //ackFlag = packet[5];
+            finFlag = packet[15];
+            //finFlag = packet[6];
+            windowSize = fromByteArray(packet, 16);
+            //windowSize = packet[7];
+            nextHop = packet[20];
+            //nextHop = packet[8];
 
-            int dataLength = (Utils.convertToInt((byte)((packet[9]<<8) + (Utils.convertToInt(packet[10])))));
+            //int dataLength = (Utils.convertToInt((byte)((packet[9]<<8) + (Utils.convertToInt(packet[10])))));
 
-            data = new byte[100];
 
-            if(dataLength!=0) {
-                System.arraycopy(packet, 9, data, 0, dataLength);
-            }
+
+            data = new byte[236];
+            System.arraycopy(packet, 21, data, 0, packet.length - 21);
+
+//            if(dataLength!=0) {
+//                System.arraycopy(packet, 9, data, 0, dataLength);
+//            }
         }
 
+    }
+
+    public int fromByteArray(byte[] bytes, int i) {
+        return bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 | (bytes[i + 2] & 0xFF) << 8 | (bytes[i + 3] & 0xFF);
+    }
+
+    public byte[] toBytes(int x) {
+        byte[] result = new byte[4];
+
+        result[0] = (byte) (x >> 24);
+        result[1] = (byte) (x >> 16);
+        result[2] = (byte) (x >> 8);
+        result[3] = (byte) (x);
+
+        return result;
+    }
+
+    public byte[] getBytes() {
+        byte[] arr = new byte[256];
+        arr[0] = this.getPacketType();
+        System.arraycopy(toBytes(this.getSourcePort()), 0, arr, 1, 4);
+        arr[5] = this.getDestination();
+        System.arraycopy(toBytes(this.getSequenceNumber()), 0, arr, 6, 4);
+        System.arraycopy(toBytes(this.getAcknowledgment()), 0, arr, 10, 4);
+        arr[14] = this.getAckFlag();
+        arr[15] = this.getFinFlag();
+        System.arraycopy(toBytes(this.getWindowSize()), 0 , arr, 16, 4);
+        arr[20] = this.getNextHop();
+        System.arraycopy(this.getData(), 0, arr, 21, this.getData().length);
+
+        return arr;
     }
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
@@ -72,31 +114,32 @@ public class Packet implements Serializable{
 
     }
 
-    public static byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(obj);
-        oos.flush();
-        oos.close();
-        bos.close();
-        byte [] data = bos.toByteArray();
-        return data;
-    }
+//    public static byte[] serialize(Object obj) throws IOException {
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        ObjectOutputStream oos = new ObjectOutputStream(bos);
+//        oos.writeObject(obj);
+//        oos.flush();
+//        oos.close();
+//        bos.close();
+//        byte [] data = bos.toByteArray();
+//        return data;
+//    }
 
-    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        ObjectInputStream is = new ObjectInputStream(in);
-        System.out.println("-------------------Deserialize");
-        System.out.println(in);
-        System.out.println(is);
-        System.out.println(is.readObject());
-        return is.readObject();
-    }
+//    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+//        ByteArrayInputStream in = new ByteArrayInputStream(data);
+//        ObjectInputStream is = new ObjectInputStream(in);
+//        //is.close();
+//        //in.close();
+//        System.out.println("-------------------Deserialize");
+//        System.out.println(in);
+//        System.out.println(is);
+//        System.out.println(is.readUTF());
+//        return is.readUTF();
+//    }
 
 
-    public void receiveFromTransportLayer(byte[] data) throws IOException, ClassNotFoundException {
-        Packet p = (Packet) deserialize(data);
-        sendToaApplicationLayer(p.getData().toString());
+    public void receiveFromTransportLayer() throws IOException, ClassNotFoundException {
+        sendToaApplicationLayer(this.getData().toString());
     }
 
     public void sendToaApplicationLayer(String message) {
@@ -113,7 +156,7 @@ public class Packet implements Serializable{
         this.data = data;
     }
 
-    public int getSequenceNumber(int i) {
+    public int getSequenceNumber() {
         return sequenceNumber;
     }
 
@@ -121,7 +164,7 @@ public class Packet implements Serializable{
         this.sequenceNumber = sequenceNumber;
     }
 
-    public int getAcknowledgment(int i) {
+    public int getAcknowledgment() {
         return acknowledgment;
     }
 
@@ -185,11 +228,11 @@ public class Packet implements Serializable{
         this.destinationPort = destinationPort;
     }
 
-    public int getPacketType() {
-        return packetType;
+    public byte getPacketType() {
+        return this.packetType;
     }
 
-    public void setPacketType(int packetType) {
+    public void setPacketType(byte packetType) {
         this.packetType = packetType;
     }
 }

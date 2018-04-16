@@ -70,7 +70,7 @@ public class Client {
      */
     public Client(String name) {
         this.name = name;
-        this.listeningPort = 4343;
+        this.listeningPort = this.findClientPort();
         this.deviceNo = this.listeningPort % 10;
     }
 
@@ -95,8 +95,8 @@ public class Client {
             this.socket.joinGroup(groupAddress);
 
             this.receiver = new NetworkHandlerReceiver(this.socket);
-            this.broadcastSender = new BroadcastHandler(this);
-            this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
+            //this.broadcastSender = new BroadcastHandler(this);
+            //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
         } catch (IOException e) {
             e.printStackTrace();
