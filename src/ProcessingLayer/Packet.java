@@ -22,7 +22,7 @@ import java.security.spec.InvalidParameterSpecException;
 
 public class Packet implements Serializable{
 
-    private byte[] data = new byte[0];
+    private byte[] data = new byte[256];
     private int sequenceNumber = 0;
     private int acknowledgment = 0;
     private byte destination = 0;
@@ -119,6 +119,7 @@ public class Packet implements Serializable{
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
           this.setData(encryption.encrypt(message).getBytes());
+          System.out.println("Encrypted message: " + encryption.encrypt(message));
           this.sendToTransportLayer(this, socket);
     }
 
