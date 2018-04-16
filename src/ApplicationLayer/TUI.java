@@ -10,8 +10,8 @@ public class TUI {
         client=new Client("Eduard C ");
         client.connect();
 
-        client.sendToProceessingLayer("Test", 54323);
-        client.sendToProceessingLayer("Test 2", 54323);
+        client.sendToProceessingLayer("Test", 54322);
+        client.sendToProceessingLayer("Test 2", 54322);
 
     }
 }
