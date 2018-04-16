@@ -14,7 +14,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-import static ProcessingLayer.Packet.serialize;
+//import static ProcessingLayer.Packet.serialize;
 
 
 /**
@@ -53,7 +53,7 @@ public class NetworkHandlerSender {
     public void receiveFromProcessingLayer(Packet p) {
         try {
             int port = p.getDestinationPort();
-            byte[] serializedPacket = serialize(p);
+            byte[] serializedPacket = p.getBytes();
             this.send(serializedPacket, port);
         } catch (IOException e) {
             e.printStackTrace();
