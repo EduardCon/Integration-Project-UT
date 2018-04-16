@@ -86,8 +86,6 @@ public class Packet implements Serializable{
     public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
         ByteArrayInputStream in = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(in);
-        is.close();
-        in.close();
         System.out.println("-------------------Deserialize");
         System.out.println(in);
         System.out.println(is);
