@@ -54,7 +54,7 @@ public class Packet implements Serializable{
 
 
             data = new byte[236];
-            System.arraycopy(packet, 24, data, 0, packet.length - 21);
+            System.arraycopy(packet, 24, data, 0, packet.length - 24);
 
 //            if(dataLength!=0) {
 //                System.arraycopy(packet, 9, data, 0, dataLength);
@@ -107,7 +107,7 @@ public class Packet implements Serializable{
 //        packet.setNextHop((byte) 0);
 //        packet.setData(message);
 //        this.sendToTransportLayer(packet, socket);
-          this.setPacketType((byte) 1);
+          this.setPacketType((byte) 2);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
           this.setSequenceNumber(0);
