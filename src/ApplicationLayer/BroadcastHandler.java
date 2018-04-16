@@ -1,15 +1,12 @@
 package ApplicationLayer;
 
-import ApplicationLayer.Client;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
@@ -76,6 +73,8 @@ public class BroadcastHandler extends Thread {
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
