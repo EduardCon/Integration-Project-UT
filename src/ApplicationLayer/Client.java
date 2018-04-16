@@ -64,6 +64,8 @@ public class Client {
 
     private InetAddress groupAddress;
 
+    private RoutingTable routingTable;
+
     /**
      * Client constructor.
      * @param name The name of the Client.
@@ -94,11 +96,12 @@ public class Client {
             //Join the multicast group using the client's socket.
             this.socket.joinGroup(groupAddress);
 
-            this.receiver = new NetworkHandlerReceiver(this.socket);
+            this.receiver = new NetworkHandlerReceiver(this, this.socket);
+
 
 
             this.broadcastSender = new BroadcastHandler(this);
-            this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
+            this.broadcastReceiver = new NetworkHandlerReceiver(this, groupSocket);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -157,7 +160,9 @@ public class Client {
     }
 
     public void receiveFromProcessingLayer(String message) {
+        System.out.println("\n-------------- RECEIVED MESSAGE --------------\n");
         System.out.println(message);
+        System.out.println("\n--------------- END OF DETAILS -----------------\n");
     }
 
     /**

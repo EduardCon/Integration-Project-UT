@@ -1,5 +1,6 @@
 package ProcessingLayer;
 
+import ApplicationLayer.Client;
 import Exceptions.InvalidPacketFormat;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
@@ -21,10 +22,16 @@ public class Packet implements Serializable{
     private int sourcePort = 0;
     private int destinationPort = 0;
     private byte packetType;
+    private Client client;
     private static final long serialVersionUID = 7829136421241571165L;
 
     public Packet() {}
- 
+
+    public Packet(byte[] packet, Client client) throws InvalidPacketFormat {
+        this(packet);
+        this.client = client;
+    }
+
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
 
@@ -53,7 +60,7 @@ public class Packet implements Serializable{
 
             data = new byte[236];
 
-            System.out.println(packet.length);
+           // System.out.println(packet.length);
             System.arraycopy(packet, 24, data, 0, packet.length - 24);
         }
     }
@@ -110,40 +117,18 @@ public class Packet implements Serializable{
 
     }
 
-//    public static byte[] serialize(Object obj) throws IOException {
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        ObjectOutputStream oos = new ObjectOutputStream(bos);
-//        oos.writeObject(obj);
-//        oos.flush();
-//        oos.close();
-//        bos.close();
-//        byte [] data = bos.toByteArray();
-//        return data;
-//    }
-
-//    public static Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
-//        ByteArrayInputStream in = new ByteArrayInputStream(data);
-//        ObjectInputStream is = new ObjectInputStream(in);
-//        //is.close();
-//        //in.close();
-//        System.out.println("-------------------Deserialize");
-//        System.out.println(in);
-//        System.out.println(is);
-//        System.out.println(is.readUTF());
-//        return is.readUTF();
-//    }
-
 
     public void receiveFromTransportLayer() throws IOException, ClassNotFoundException {
-        System.out.println(this.getData());
-        String message = new String("Packet type: "+this.getPacketType()+ "Source port: " + this.getSourcePort()+ "Destination port: " + this.getDestinationPort()+
-                "Sequence number: " + this.getSequenceNumber()+ "Ack: " + this.getAcknowledgment()+ "AckFlag: " + this.getAckFlag() +
-                "Fin flag: " + this.getFinFlag()+ "Window Size: " + this.getWindowSize() + "NextHop: " + this.getNextHop() + "Data: " + new String(this.getData()));
+        //System.out.println(this.getData());
+
+        String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
+                "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " + new String(this.getData()));
         sendToApplicationLayer(message);
     }
 
     public void sendToApplicationLayer(String message) {
-        System.out.println(message);
+        this.client.receiveFromProcessingLayer(message);
     }
 
     public void print() {System.out.println(new String(this.getData())); }

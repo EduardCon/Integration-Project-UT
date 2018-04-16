@@ -1,8 +1,10 @@
 package TransportLayer;
 
+import ApplicationLayer.Client;
 import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
+import com.sun.org.apache.xpath.internal.operations.Mult;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,11 +33,14 @@ public class NetworkHandlerReceiver extends Thread {
      */
     private byte[] buf = new byte[256];
 
+    private Client client;
+
     /**
      * Constructor.
      */
-    public NetworkHandlerReceiver(MulticastSocket socket) {
+    public NetworkHandlerReceiver(Client client, MulticastSocket socket) {
         try {
+            this.client = client;
             this.socket = socket;
             groupAddress = InetAddress.getByName(Utils.multiCastAddress);
         } catch (UnknownHostException e) {
@@ -47,12 +52,10 @@ public class NetworkHandlerReceiver extends Thread {
 
     public void sendToProcessingLayer(byte[] data) {
         try {
-            Packet p = new Packet(data);
+            Packet p = new Packet(data, this.client);
             p.receiveFromTransportLayer();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | InvalidPacketFormat e) {
             e.printStackTrace();
-        } catch (InvalidPacketFormat invalidPacketFormat) {
-            invalidPacketFormat.printStackTrace();
         }
 
 

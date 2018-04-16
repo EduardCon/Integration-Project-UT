@@ -40,7 +40,7 @@ public class BroadcastHandler extends Thread {
             System.out.println("Sending broadcast!");
             while(true) {
                 this.sendToProcessingLayer(this.message);
-                TimeUnit.SECONDS.sleep(3);
+                TimeUnit.SECONDS.sleep(5);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();

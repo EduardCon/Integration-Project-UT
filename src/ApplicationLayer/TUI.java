@@ -7,11 +7,11 @@ public class TUI {
     private static Client client;
 
     public static void main(String[] args) throws IOException {
-        client=new Client("Eduard M ");
+        client=new Client("Eduard C ");
         client.connect();
 
-        client.sendToProceessingLayer("CRISTIANO RONALDO", 54322);
-        client.sendToProceessingLayer("HAT TRICK", 54322);
+        client.sendToProceessingLayer("Test", 54323);
+        client.sendToProceessingLayer("Test 2", 54323);
 
     }
 }
