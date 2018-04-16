@@ -1,6 +1,5 @@
 package TransportLayer;
 
-import ApplicationLayer.Client;
 import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
@@ -30,7 +29,7 @@ public class NetworkHandlerReceiver extends Thread {
     /**
      * Buffer.
      */
-    private byte[] buf = new byte[2048];
+    private byte[] buf = new byte[256];
 
     /**
      * Constructor.

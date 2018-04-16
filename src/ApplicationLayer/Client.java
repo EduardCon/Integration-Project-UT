@@ -95,8 +95,8 @@ public class Client {
             this.socket.joinGroup(groupAddress);
 
             this.receiver = new NetworkHandlerReceiver(this.socket);
-            //this.broadcastSender = new BroadcastHandler(this);
-            //this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
+            this.broadcastSender = new BroadcastHandler(this);
+            this.broadcastReceiver = new NetworkHandlerReceiver(this.groupSocket);
 
         } catch (IOException e) {
             e.printStackTrace();
