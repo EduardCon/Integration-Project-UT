@@ -96,6 +96,7 @@ public class Packet implements Serializable{
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, byte[] message, MulticastSocket socket) throws UnknownHostException {
         Packet packet = new Packet();
+        packet.setPacketType((byte) 1);
         packet.setSourcePort(listeningPort);
         packet.setDestinationPort(destinationPort);
         packet.setSequenceNumber(0);
@@ -139,11 +140,13 @@ public class Packet implements Serializable{
 
 
     public void receiveFromTransportLayer() throws IOException, ClassNotFoundException {
-        sendToaApplicationLayer(this.getData().toString());
+        System.out.println(this.getData());
+        String message = new String(this.getData());
+        sendToApplicationLayer(message);
     }
 
-    public void sendToaApplicationLayer(String message) {
-        System.out.println(message.toString());
+    public void sendToApplicationLayer(String message) {
+        System.out.println(message);
     }
 
     public void print() {System.out.println(new String(this.getData())); }
