@@ -32,6 +32,7 @@ public class Packet implements Serializable{
     private int windowSize = 0;
     private int sourcePort = 0;
     private int destinationPort = 0;
+    private int dataLength;
     private byte packetType;
     private Client client;
     private static final long serialVersionUID = 7829136421241571165L;
@@ -67,12 +68,12 @@ public class Packet implements Serializable{
 
             nextHop = packet[23];
 
+            dataLength = fromByteArray(packet, 24);
 
-
-            data = new byte[236];
+            data = new byte[dataLength];
 
            // System.out.println(packet.length);
-            System.arraycopy(packet, 24, data, 0, packet.length - 24);
+            System.arraycopy(packet, 28, data, 0, dataLength);
         }
     }
 
@@ -102,13 +103,14 @@ public class Packet implements Serializable{
         arr[18] = this.getFinFlag();
         System.arraycopy(toBytes(this.getWindowSize()), 0 , arr, 19, 4);
         arr[23] = this.getNextHop();
-        System.arraycopy(this.getData(), 0, arr, 24, this.getData().length);
+        System.arraycopy(toBytes(this.dataLength), 0, arr, 24, 4);
+        System.arraycopy(this.getData(), 0, arr, 28, this.getData().length);
 
         return arr;
     }
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws UnknownHostException, NoSuchPaddingException, BadPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, UnsupportedEncodingException, InvalidKeyException, InvalidParameterSpecException {
-        Encryption encryption = new Encryption();
+        //Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
           this.setSourcePort(listeningPort);
           this.setDestinationPort(destinationPort);
@@ -118,7 +120,9 @@ public class Packet implements Serializable{
           this.setFinFlag((byte) 0 );
           this.setWindowSize(10);
           this.setNextHop((byte) 0);
-          this.setData(encryption.encrypt(message).getBytes());
+          this.setDataLength(message.getBytes().length);
+          //this.setData(encryption.encrypt(message).getBytes());
+            this.setData(message.getBytes());
           this.sendToTransportLayer(this, socket);
     }
 
@@ -132,9 +136,10 @@ public class Packet implements Serializable{
     public void receiveFromTransportLayer() throws IOException, ClassNotFoundException, NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidParameterSpecException, InvalidAlgorithmParameterException {
         //System.out.println(this.getData());
         Encryption encryption = new Encryption();
+        System.out.println(this.getData().length + " RECEIVED");
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  encryption.decrypt(new String(this.getData())));
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  new String(this.getData()) /*encryption.decrypt(new String(this.getData()))*/ );
         sendToApplicationLayer(message);
     }
 
@@ -150,6 +155,7 @@ public class Packet implements Serializable{
 
     public void setData(byte[] data) {
         this.data = data;
+        System.out.println(data.length + " SENT");
     }
 
     public int getSequenceNumber() {
@@ -174,6 +180,10 @@ public class Packet implements Serializable{
 
     public void setDestination(byte destination) {
         this.destination = destination;
+    }
+
+    public void setDataLength(int dataLength) {
+        this.dataLength = dataLength;
     }
 
     public byte getAckFlag() {
