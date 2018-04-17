@@ -139,9 +139,11 @@ public class RoutingTable {
         return result;
     }
 
-    public boolean hasAnEntryForDestination(int destination, ArrayList<TableEntry> list) {
+    public boolean hasASmallerEntryForDestination(int destination, ArrayList<TableEntry> list) {
         for(TableEntry tb : list) {
-
+            if(tb.getDestination() == destination && tb.getDistance() > ) {
+                return true;
+            }
         }
     }
 
@@ -162,7 +164,7 @@ public class RoutingTable {
             } else {
                 List<TableEntry> receivedList = receivedTable.get(i);
                 for(TableEntry entry : receivedList) {
-                    if(list.hasAnEntryForDestination(entry.getDestination()), list) {
+                    if(list.hasASmallerEntryForDestination(entry.getDestination()), list) {
 
                     }
                 }
