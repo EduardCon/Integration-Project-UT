@@ -52,6 +52,8 @@ public class Client extends Observable {
 
     private Map<Integer, List<String>> receivedBuffer;
 
+    public String lastMessageTodDisplay;
+
     public Client() {
 
     }
@@ -187,6 +189,7 @@ public class Client extends Observable {
             receivedBuffer.put(deviceNo, list = new ArrayList<>());
         }
         list.add(message);
+        lastMessageTodDisplay = this.name + ": " + message;
         setChanged();
         notifyObservers();
 

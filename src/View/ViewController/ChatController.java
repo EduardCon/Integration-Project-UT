@@ -35,12 +35,14 @@ public class ChatController implements Initializable, Observer {
     private String username;
     public Client client;
     public LoginPanel login;
+    private String lastmessageinbox;
 
     public void sendButton() throws Exception {
         String message = messageBox.getText();
         if(!messageBox.getText().isEmpty()) {
             //addToChat(client.getReceivedBuffer());
 //            chatPane.getItems().add(client.getReceivedBuffer().values());
+            lastmessageinbox = this.username + ": " + message;
             client.sendToProceessingLayer(message, Utils.multiCastGroupPort);
             messageBox.clear();
         }
@@ -58,7 +60,7 @@ public class ChatController implements Initializable, Observer {
         this.portNumber = portNumber;
     }
 
-    public void addToChat(Map<Integer, List<String>> receivedBuffer) {
+    public void addToChat() {
         Task<HBox> othersMessages = new Task<HBox>() {
             @Override
             public HBox call() throws Exception {
@@ -68,10 +70,10 @@ public class ChatController implements Initializable, Observer {
 //                profileImage.setFitWidth(32);
                 BubbledLabel bl6 = new BubbledLabel();
                 String lastIndex= "";
-                for(List<String> i : client.getReceivedBuffer().values()) {
-                    lastIndex = i.get(i.size()-1);
-                }
-                bl6.setText(client.getName() + ": " + client.getReceivedBuffer().values());
+//                for(List<String> i : client.getReceivedBuffer().values()) {
+//                    lastIndex = i.get(i.size()-1);
+//                }
+                bl6.setText(client.lastMessageTodDisplay);
                 bl6.setBackground(new Background(new BackgroundFill(Color.WHITE,null, null)));
                 HBox x = new HBox();
                 bl6.setBubbleSpec(BubbleSpec.FACE_LEFT_CENTER);
@@ -94,7 +96,8 @@ public class ChatController implements Initializable, Observer {
                 profileImage.setFitWidth(32);
 
                 BubbledLabel bl6 = new BubbledLabel();
-                bl6.setText(client.getReceivedBuffer().values().toString());
+                bl6.setText(lastmessageinbox);
+
 
                 bl6.setBackground(new Background(new BackgroundFill(Color.LIGHTGREEN,
                         null, null)));
@@ -158,7 +161,7 @@ public void setImageLabel() {
     @Override
     public void update(Observable o, Object arg) {
         System.out.println("sunt aici");
-        addToChat(client.getReceivedBuffer());
+        addToChat();
 
     }
 }
