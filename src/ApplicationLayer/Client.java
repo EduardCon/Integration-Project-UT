@@ -47,7 +47,7 @@ public class Client {
      */
     private NetworkHandlerReceiver broadcastReceiver;
 
-    private Map<Integer, List<String>> buffer;
+    private Map<Integer, List<String>> receivedBuffer;
 
     public Client() {
 
@@ -87,7 +87,7 @@ public class Client {
     public Client(String name, int listeningPort) {
         this.name = name;
         this.listeningPort = listeningPort;
-        buffer = new HashMap<>();
+        receivedBuffer = new HashMap<>();
     }
 
     /**
@@ -175,13 +175,13 @@ public class Client {
 
         System.out.println("\n-------------- RECEIVED MESSAGE --------------\n");
 
-        List<String> list = buffer.get(deviceNo);
+        List<String> list = receivedBuffer.get(deviceNo);
         if(list == null) {
-            buffer.put(deviceNo, list = new ArrayList<>());
+            receivedBuffer.put(deviceNo, list = new ArrayList<>());
         }
         list.add(message);
 
-        System.out.println(buffer);
+        System.out.println(receivedBuffer);
         System.out.println("\n--------------- END OF DETAILS -----------------\n");
     }
 
@@ -195,6 +195,10 @@ public class Client {
 
     public RoutingTable getRoutingTable() {
         return this.routingTable;
+    }
+
+    public Map<Integer, List<String>> getReceivedBuffer() {
+        return this.receivedBuffer;
     }
 
 

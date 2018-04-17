@@ -1,6 +1,7 @@
 package View.ViewController;
 
 import ApplicationLayer.Client;
+import Util.Utils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
@@ -22,7 +23,7 @@ public class ChatController implements Initializable{
     Stage stage;
 
     public void sendButton() throws Exception {
-        Client client = new Client();
+        Client client = new Client(messageBox.getText(), getPortNumber());
         client.connect();
         String message = messageBox.getText();
         System.out.println("PORT NUMBER " + getPortNumber());
@@ -30,7 +31,7 @@ public class ChatController implements Initializable{
         if(!messageBox.getText().isEmpty()) {
             chatPane.getItems().add(message);
             System.out.println("PORT NUMBER " + getPortNumber());
-            client.sendToProceessingLayer(message, getPortNumber());
+            client.sendToProceessingLayer(message, Utils.multiCastGroupPort);
             messageBox.clear();
         }
     }

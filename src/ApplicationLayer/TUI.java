@@ -13,7 +13,7 @@ public class TUI {
 
     private static Client client;
 
-    public static void main(String[] args) throws IOException, NoSuchPaddingException, InvalidKeySpecException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidParameterSpecException {
+    public static void main(String[] args) throws Exception {
         client=new Client("Eduard C ", 54322);
         client.connect();
 
