@@ -2,7 +2,12 @@ package ApplicationLayer;
 
 import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+import javafx.scene.control.Tab;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +21,7 @@ public class RoutingTable {
     private Map<Integer, List<TableEntry>> table;
 
 
-    private class TableEntry {
+    class TableEntry {
 
         private int destination;
         private int nextHop;
@@ -44,30 +49,152 @@ public class RoutingTable {
 
 
     public RoutingTable(Client client) {
-        this.client = client;
-        this.broadcastHandler = new BroadcastHandler(this.client);
-        this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
         this.table = new HashMap<>();
+        this.client = client;
+        this.testTable();
+//        this.broadcastHandler = new BroadcastHandler(this);
+//        this.initializeTable();
+//        this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
+
+    }
+
+    /*
+    <x>.d.n.d/d.n.d/
+     */
+
+    public String convertToStringMessage(Map<Integer, List<TableEntry>> map) {
+        String result = "";
+        for(int i : map.keySet()) {
+            result += "<" + i  + ">";
+            for(TableEntry t : map.get(i)) {
+                result += t.getDestination() + "," + t.getNextHop() + "," + t.getDistance() + "/";
+            }
+        }
+        //System.out.println(result);
+        return result;
+    }
+
+    public void testTable() {
+        // list from device 3
+        TableEntry tb = new TableEntry(1, 2, 2);
+        TableEntry tb2 = new TableEntry(3, 3, 0);
+        TableEntry tbx = new TableEntry(4, 4, 1);
+        List<TableEntry> list = new ArrayList<>();
+        list.add(tb);
+        list.add(tb2);
+        list.add(tbx);
+        table.put(3, list);
+
+        // list from device 2
+        TableEntry tb3 = new TableEntry(2, 2, 0);
+        TableEntry tb4 = new TableEntry(1, 1, 1);
+        List<TableEntry> list2 = new ArrayList<>();
+        list2.add(tb3);
+        list2.add(tb4);
+        table.put(2, list2);
+
+        String parsed = this.convertToStringMessage(table);
+        System.out.println(this.convertToStringMessage(table));
+        System.out.println(this.convertToStringMessage(this.parseTable(parsed)));
+    }
+
+    public void initializeTable() {
+        TableEntry tb = new TableEntry(this.client.getDeviceNo(), this.client.getDeviceNo(), 0);
+        List<TableEntry> list = new ArrayList<>();
+        list.add(tb);
+        table.put(this.client.getDeviceNo(), list);
+        System.out.println(this.convertToStringMessage(table));
+        this.parseTable(this.convertToStringMessage(table));
+        this.broadcastHandler.setMessage(this.convertToStringMessage(table));
+
+    }
+
+    /*
+    <x.d.n.d/d.n.d/>
+     */
+
+    public Map<Integer, List<TableEntry>> parseTable (String message) {
+        Map<Integer, List<TableEntry>> result = new HashMap<>();
+        String[] devices = message.split("<");
+        for(String s : devices) {
+            if(s.isEmpty()){
+                continue;
+            }
+            int deviceNo = s.charAt(0) - '0';
+
+            List<TableEntry> list = new ArrayList<>();
+            String[] contents = s.split("/");
+            for(String c : contents){
+                String[] entries = c.split(",");
+                //System.out.println(entries);
+                List<Integer> tableEntries = new ArrayList<>();
+                for(String f : entries) {
+                    tableEntries.add(f.charAt(f.length() - 1) - '0');
+                }
+                TableEntry tb = new TableEntry(tableEntries.get(0), tableEntries.get(1), tableEntries.get(2));
+                list.add(tb);
+            }
+            result.put(deviceNo, list);
+        }
+        return result;
+    }
+
+    public boolean hasAnEntryForDestination(int destination, ArrayList<TableEntry> list) {
+        for(TableEntry tb : list) {
+
+        }
     }
 
     public void receiveFromProcessingLayer(Packet packet) {
-        int deviceNo = packet.getSourcePort() % 10;
-        TableEntry entry = new TableEntry(deviceNo, packet.getNextHop(), 1);
-        List<TableEntry>  list = table.get(deviceNo);
 
-        if(list == null) {
-            table.put(deviceNo, list = new ArrayList<>());
-            list.add(entry);
-            this.printTable();
-        } else {
-            for(TableEntry i : list) {
-              if(i.getDestination() == entry.getDestination() && i.getDistance() > entry.getDistance()) {
-                  list.remove(i);
-                  list.add(entry);
-                  this.printTable();
-              }
+        Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
+
+        boolean updateTable = false;
+
+        // Iterate through each key in the received table
+        for(int i : receivedTable.keySet()) {
+            // Check to see if there is a list with the given key in our table
+            List<TableEntry> list = this.table.get(i);
+            if(list == null) {
+                // If not, we add it.
+                this.table.put(i, list);
+                updateTable = true;
+            } else {
+                List<TableEntry> receivedList = receivedTable.get(i);
+                for(TableEntry entry : receivedList) {
+                    if(list.hasAnEntryForDestination(entry.getDestination()), list) {
+
+                    }
+                }
+                // There is already a list with the given key in our table.
+
             }
         }
+
+//        int deviceNo = packet.getSourcePort() % 10;
+//        TableEntry entry = new TableEntry(deviceNo, packet.getNextHop(), 1);
+//        List<TableEntry>  list = table.get(deviceNo);
+//
+//        if(list == null) {
+//            table.put(deviceNo, list = new ArrayList<>());
+//            list.add(entry);
+//            updateTable = true;
+//            //this.printTable();
+//        } else {
+//            for(TableEntry i : list) {
+//              if(i.getDestination() == entry.getDestination() && i.getDistance() > entry.getDistance()) {
+//                  list.remove(i);
+//                  list.add(entry);
+//                  updateTable = true;
+//                  //this.printTable();
+//              }
+//            }
+//        }
+//        if(updateTable) {
+//            this.printTable();
+//            //System.out.println(this.table.toString());
+//            this.broadcastHandler.setMessage(this.table.toString());
+//        }
     }
 
     public void printTable() {
@@ -82,6 +209,10 @@ public class RoutingTable {
         }
 
         System.out.println("-------------------END---------------------");
+    }
+
+    public Client getClient() {
+        return this.client;
     }
 
 }

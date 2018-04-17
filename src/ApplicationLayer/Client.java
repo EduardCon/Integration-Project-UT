@@ -86,6 +86,7 @@ public class Client {
      */
     public Client(String name, int listeningPort) {
         this.name = name;
+        this.deviceNo = listeningPort % 10;
         this.listeningPort = listeningPort;
         receivedBuffer = new HashMap<>();
     }

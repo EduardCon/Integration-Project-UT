@@ -19,22 +19,25 @@ import java.util.concurrent.TimeUnit;
 public class BroadcastHandler extends Thread {
 
     private int groupPort;
-    private MulticastSocket groupMulticastSocket;
     private InetAddress groupAddress;
-    private final String message;
-    private Client client;
+    private String message;
+    private RoutingTable routingTable;
+    private int listeningPort;
+    private MulticastSocket clientMulticastSocket;
 
-    public BroadcastHandler(Client client) {
-        this.client = client;
+    public BroadcastHandler(RoutingTable routingTable) {
+        this.routingTable = routingTable;
         this.groupPort = Utils.multiCastGroupPort;
+        this.clientMulticastSocket = this.routingTable.getClient().getSocket();
+        this.listeningPort = this.routingTable.getClient().getListeningPort();
+        this.message = "";
         try {
             this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        this.groupMulticastSocket = this.client.getGroupSocket();
-        message = "Client " + this.client.getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort +
-        " with listening port: " + this.client.getListeningPort();
+        //message = "Client " + this.routingTable.getClient().getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort +
+        //" with listening port: " + this.routingTable.getClient().getListeningPort();
 
         new Thread(this);
         this.start();
@@ -52,28 +55,18 @@ public class BroadcastHandler extends Thread {
         }
     }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public void sendToProcessingLayer(String message) {
         Packet packet = new Packet();
         try {
-            packet.receiveFromApplicationLayer(Utils.multiCastGroupPort, this.client.getListeningPort(), message, this.client.getSocket(), 1);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidParameterSpecException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            if(message.length() == 0) {
+                packet.receiveFromApplicationLayer(this.groupPort, this.listeningPort, message, this.clientMulticastSocket, 0);
+            } else {
+                packet.receiveFromApplicationLayer(this.groupPort, this.listeningPort, message, this.clientMulticastSocket, 1);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

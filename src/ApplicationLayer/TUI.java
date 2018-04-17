@@ -14,10 +14,10 @@ public class TUI {
     private static Client client;
 
     public static void main(String[] args) throws Exception {
-        client=new Client("Eduard C ", 54322);
+        client=new Client("Eduard C ", 54321);
         client.connect();
 
-        //client.sendToProceessingLayer("Test", 54323);
+        //client.sendToProceessingLayer("Test", 54321);
         //client.sendToProceessingLayer("Test 2", 54323);
 
     }

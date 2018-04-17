@@ -40,9 +40,10 @@ public class ChatController implements Initializable{
         System.out.println("MESSAGE " + message);
         if(!messageBox.getText().isEmpty()) {
 //            addToChat(client.getReceivedBuffer());
+            System.out.println(!client.getReceivedBuffer().isEmpty());
             chatPane.getItems().add(client.getReceivedBuffer().values());
             System.out.println("PORT NUMBER " + getPortNumber());
-            client.sendToProceessingLayer(message, 54324);
+            client.sendToProceessingLayer(message, 4464);
             messageBox.clear();
         }
     }

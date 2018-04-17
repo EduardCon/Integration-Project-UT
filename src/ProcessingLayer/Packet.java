@@ -42,7 +42,7 @@ public class Packet implements Serializable{
 
         if(packetType == Utils.nullPacket) {
 
-            throw new InvalidPacketFormat();
+            //throw new InvalidPacketFormat();
 
         } else {
             sourcePort = fromByteArray(packet, 1);
@@ -110,7 +110,7 @@ public class Packet implements Serializable{
         this.setAckFlag((byte) 0);
         this.setFinFlag((byte) 0 );
         this.setWindowSize(10);
-        this.setNextHop((byte) 0);
+        this.setNextHop((byte) (listeningPort % 10));
         this.setDataLength(message.getBytes().length);
         this.setData(message);
            //this.setData(encryption.encrypt(message, HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM));
@@ -129,7 +129,7 @@ public class Packet implements Serializable{
         //System.out.println(this.getData().length);
         if(this.packetType == 2) {
             Encryption encryption = new Encryption();
-            System.out.println(this.getData().length + " RECEIVED");
+            //System.out.println(this.getData().length + " RECEIVED");
             String smallMessage = this.getMessage();
             String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                     "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
@@ -170,7 +170,7 @@ public class Packet implements Serializable{
         }
         //System.out.println(this.data.toString());
         //System.out.println(new String(this.data));
-        System.out.println(this.data.length + " SENT");
+        //System.out.println(this.data.length + " SENT");
     }
 
     public int getSequenceNumber() {
