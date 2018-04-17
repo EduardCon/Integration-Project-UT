@@ -127,13 +127,21 @@ public class Packet implements Serializable{
     public void receiveFromTransportLayer() throws Exception {
         //System.out.println(this.getData());
         //System.out.println(this.getData().length);
-        Encryption encryption = new Encryption();
-        System.out.println(this.getData().length + " RECEIVED");
-        String smallMessage = this.getMessage();
-        String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
-                "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage()/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
-        sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
+        if(this.packetType == 2) {
+            Encryption encryption = new Encryption();
+            System.out.println(this.getData().length + " RECEIVED");
+            String smallMessage = this.getMessage();
+            String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
+                    "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
+                    "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage()/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
+            sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
+        } else if(this.packetType == 1) {
+            sendToRoutingTable(this);
+        }
+    }
+
+    public void sendToRoutingTable(Packet packet) {
+        this.client.getRoutingTable().receiveFromProcessingLayer(packet);
     }
 
     public void sendToApplicationLayer(String message, int deviceNo) {

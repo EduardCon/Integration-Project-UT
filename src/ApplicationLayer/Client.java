@@ -172,6 +172,7 @@ public class Client {
 
     public void receiveFromProcessingLayer(String message, int deviceNo) {
 
+
         System.out.println("\n-------------- RECEIVED MESSAGE --------------\n");
 
         List<String> list = buffer.get(deviceNo);
@@ -190,6 +191,10 @@ public class Client {
      */
     public int getListeningPort() {
         return this.listeningPort;
+    }
+
+    public RoutingTable getRoutingTable() {
+        return this.routingTable;
     }
 
 
