@@ -58,19 +58,20 @@ public class RoutingTable {
         if(list == null) {
             table.put(deviceNo, list = new ArrayList<>());
             list.add(entry);
+            this.printTable();
         } else {
             for(TableEntry i : list) {
               if(i.getDestination() == entry.getDestination() && i.getDistance() > entry.getDistance()) {
                   list.remove(i);
                   list.add(entry);
+                  this.printTable();
               }
             }
         }
-
-        this.printTable();
     }
 
     public void printTable() {
+        System.out.println("-------------------START---------------------");
         for(int i : this.table.keySet()) {
             System.out.println("Entries for device number: " + i);
             for(TableEntry t : this.table.get(i)) {
@@ -79,6 +80,8 @@ public class RoutingTable {
                 System.out.println("Distance: " + t.getDistance());
             }
         }
+
+        System.out.println("-------------------END---------------------");
     }
 
 }
