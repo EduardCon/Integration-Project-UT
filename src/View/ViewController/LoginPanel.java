@@ -68,6 +68,7 @@ public class LoginPanel implements Initializable {
         FXMLLoader fmxlLoader = new FXMLLoader(this.getClass().getResource("/View/ChatView.fxml"));
         Parent window = (Pane) fmxlLoader.load();
         chat = fmxlLoader.<ChatController>getController();
+        chat.setImageLabel(selectedPicture.getText());
         stage.setScene((new Scene(window)));
         stage.show();
     }

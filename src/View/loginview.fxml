@@ -52,7 +52,7 @@
                   </ImageView>
                   <ImageView fx:id="EduardMView" fitHeight="93.0" fitWidth="124.0" pickOnBounds="true" preserveRatio="true" visible="false">
                      <image>
-                        <Image preserveRatio="false" smooth="false" url="@../View/images/eduardM.jpg" />
+                        <Image url="@../View/images/eduardM.jpg" />
                      </image>
                   </ImageView>
                   <ImageView fx:id="EduardCView" fitHeight="93.0" fitWidth="124.0" pickOnBounds="true" preserveRatio="true" visible="false">
