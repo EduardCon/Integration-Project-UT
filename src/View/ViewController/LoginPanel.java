@@ -77,13 +77,14 @@ public class LoginPanel implements Initializable {
         setPortNumber(portTextfield.getText());
         setUser(usernameTextfield.getText());
         Stage stage = new Stage();
-         client = new Client(getUsername(),  getPortNumber());
+        client = new Client(getUsername(),  getPortNumber());
         client.connect();
        // String picture = selectedPicture.getText();
 
         FXMLLoader fmxlLoader = new FXMLLoader(this.getClass().getResource("/View/ChatView.fxml"));
         Parent window = (Pane) fmxlLoader.load();
         chat = fmxlLoader.<ChatController>getController();
+        client.addObserver(chat);
         chat.setPortNumber(getPortNumber());
         chat.setImageLabel(selectedPicture.getText());
         chat.setUsername(getUsername());

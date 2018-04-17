@@ -3,6 +3,7 @@ package View.ViewController;
 import ApplicationLayer.Client;
 import Util.Utils;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,11 +21,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
-public class ChatController implements Initializable{
+public class ChatController implements Initializable, Observer {
     @FXML BorderPane borderPane;
     @FXML private TextArea messageBox;
     @FXML ListView chatPane;
@@ -40,7 +39,7 @@ public class ChatController implements Initializable{
     public void sendButton() throws Exception {
         String message = messageBox.getText();
         if(!messageBox.getText().isEmpty()) {
-            addToChat(client.getReceivedBuffer());
+            //addToChat(client.getReceivedBuffer());
 //            chatPane.getItems().add(client.getReceivedBuffer().values());
             client.sendToProceessingLayer(message, Utils.multiCastGroupPort);
             messageBox.clear();
@@ -154,5 +153,12 @@ public void setImageLabel() {
 
     public void setUsername(String username) {
     this.username=username;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        System.out.println("sunt aici");
+        addToChat(client.getReceivedBuffer());
+
     }
 }

@@ -4,6 +4,9 @@ import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,7 +18,7 @@ import java.util.*;
 /**
  * Class for the Client object used for connecting to the multicast group.
  */
-public class Client {
+public class Client extends Observable {
 
     /**
      * The name of the Client.
@@ -88,6 +91,7 @@ public class Client {
         this.name = name;
         this.listeningPort = listeningPort;
         receivedBuffer = new HashMap<>();
+
     }
 
     /**
@@ -183,6 +187,8 @@ public class Client {
             receivedBuffer.put(deviceNo, list = new ArrayList<>());
         }
         list.add(message);
+        setChanged();
+        notifyObservers();
 
         System.out.println(receivedBuffer);
         System.out.println("\n--------------- END OF DETAILS -----------------\n");
