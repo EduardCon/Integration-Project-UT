@@ -46,6 +46,7 @@ public class LoginPanel implements Initializable {
     @FXML private Label selectedPicture;
     @FXML private BorderPane borderPane;
     public static ChatController chat;
+    public int portNumber;
     private double xOffset;
     private double yOffset;
     private Scene scene;
@@ -59,15 +60,22 @@ public class LoginPanel implements Initializable {
     public static LoginPanel getInstance() {
         return instance;
     }
+
+    public void setPortNumber(String text) {
+        this.portNumber = Integer.parseInt(text);
+    }
+
     public void loginButtonAction() throws IOException {
+        setPortNumber(portTextfield.getText());
         Stage stage = new Stage();
-        Client client = new Client(usernameTextfield.getText(), Integer.parseInt(portTextfield.getText()));
+        Client client = new Client(usernameTextfield.getText(),  getPortNumber());
         client.connect();
        // String picture = selectedPicture.getText();
 
         FXMLLoader fmxlLoader = new FXMLLoader(this.getClass().getResource("/View/ChatView.fxml"));
         Parent window = (Pane) fmxlLoader.load();
         chat = fmxlLoader.<ChatController>getController();
+        chat.setPortNumber(getPortNumber());
         chat.setImageLabel(selectedPicture.getText());
         stage.setScene((new Scene(window)));
         stage.show();
@@ -85,6 +93,10 @@ public class LoginPanel implements Initializable {
         File dir = new File("E:/University/ProiectPLM/src");
         pb.directory(dir);
         Process p = pb.start();
+    }
+
+    public int getPortNumber() {
+        return this.portNumber;
     }
 
     public void showScene() throws IOException {

@@ -1,5 +1,6 @@
 package View.ViewController;
 
+import ApplicationLayer.Client;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
@@ -7,6 +8,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,15 +17,30 @@ public class ChatController implements Initializable{
     @FXML BorderPane borderPane;
     @FXML private TextArea messageBox;
     @FXML ListView chatPane;
-    @FXML
-    ImageView userImageView;
+    @FXML ImageView userImageView;
+    int portNumber;
+    Stage stage;
 
-    public void sendButton() {
+    public void sendButton() throws Exception {
+        Client client = new Client();
+        client.connect();
         String message = messageBox.getText();
+        System.out.println("PORT NUMBER " + getPortNumber());
+        System.out.println("MESSAGE " + message);
         if(!messageBox.getText().isEmpty()) {
             chatPane.getItems().add(message);
+            System.out.println("PORT NUMBER " + getPortNumber());
+            client.sendToProceessingLayer(message, getPortNumber());
             messageBox.clear();
         }
+    }
+
+    public int getPortNumber() {
+        return this.portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
     }
 
     public synchronized void addToChat() {
