@@ -42,7 +42,7 @@ public class ChatController implements Initializable{
 //            addToChat(client.getReceivedBuffer());
             chatPane.getItems().add(client.getReceivedBuffer().values());
             System.out.println("PORT NUMBER " + getPortNumber());
-            client.sendToProceessingLayer(message, Utils.multiCastGroupPort);
+            client.sendToProceessingLayer(message, 54324);
             messageBox.clear();
         }
     }
