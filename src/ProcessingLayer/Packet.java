@@ -129,14 +129,15 @@ public class Packet implements Serializable{
         //System.out.println(this.getData().length);
         Encryption encryption = new Encryption();
         System.out.println(this.getData().length + " RECEIVED");
+        String smallMessage = this.getMessage();
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
                 "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage()/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
-        sendToApplicationLayer(message);
+        sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
     }
 
-    public void sendToApplicationLayer(String message) {
-        this.client.receiveFromProcessingLayer(message);
+    public void sendToApplicationLayer(String message, int deviceNo) {
+        this.client.receiveFromProcessingLayer(message, deviceNo);
     }
 
     public void print() {System.out.println(new String(this.getData())); }

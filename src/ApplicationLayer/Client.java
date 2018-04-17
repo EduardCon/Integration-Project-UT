@@ -10,7 +10,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * Class for the Client object used for connecting to the multicast group.
@@ -46,6 +46,8 @@ public class Client {
      * The object that handles incoming broadcasts.
      */
     private NetworkHandlerReceiver broadcastReceiver;
+
+    private Map<Integer, List<String>> buffer;
 
     public Client() {
 
@@ -85,6 +87,7 @@ public class Client {
     public Client(String name, int listeningPort) {
         this.name = name;
         this.listeningPort = listeningPort;
+        buffer = new HashMap<>();
     }
 
     /**
@@ -167,9 +170,17 @@ public class Client {
         packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
     }
 
-    public void receiveFromProcessingLayer(String message) {
+    public void receiveFromProcessingLayer(String message, int deviceNo) {
+
         System.out.println("\n-------------- RECEIVED MESSAGE --------------\n");
-        System.out.println(message);
+
+        List<String> list = buffer.get(deviceNo);
+        if(list == null) {
+            buffer.put(deviceNo, list = new ArrayList<>());
+        }
+        list.add(message);
+
+        System.out.println(buffer);
         System.out.println("\n--------------- END OF DETAILS -----------------\n");
     }
 
