@@ -72,7 +72,7 @@ public class ChatController implements Initializable{
                 for(List<String> i : client.getReceivedBuffer().values()) {
                     lastIndex = i.get(i.size()-1);
                 }
-                bl6.setText(client.getName() + ": " + lastIndex);
+                bl6.setText(client.getName() + ": " + client.getReceivedBuffer().values());
                 bl6.setBackground(new Background(new BackgroundFill(Color.WHITE,null, null)));
                 HBox x = new HBox();
                 bl6.setBubbleSpec(BubbleSpec.FACE_LEFT_CENTER);
@@ -109,7 +109,7 @@ public class ChatController implements Initializable{
                 return x;
             }
         };
-        yourMessages.setOnSucceeded(event -> chatPane.getItems().add("Sal"));
+        yourMessages.setOnSucceeded(event -> chatPane.getItems().add(yourMessages.getValue()));
 
         if (client.getName().equals(usernameLabel.getText())) {
             Thread t2 = new Thread(yourMessages);
