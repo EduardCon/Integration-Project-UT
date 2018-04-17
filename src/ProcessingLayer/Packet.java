@@ -101,20 +101,20 @@ public class Packet implements Serializable{
     }
 
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
-       Encryption encryption = new Encryption();
+        //Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
-          this.setSourcePort(listeningPort);
-          this.setDestinationPort(destinationPort);
-          this.setSequenceNumber(0);
-          this.setAcknowledgment(0);
-          this.setAckFlag((byte) 0);
-          this.setFinFlag((byte) 0 );
-          this.setWindowSize(10);
-          this.setNextHop((byte) 0);
-          this.setDataLength(message.getBytes().length);
-          //this.setData(message.getBytes());
+        this.setSourcePort(listeningPort);
+        this.setDestinationPort(destinationPort);
+        this.setSequenceNumber(0);
+        this.setAcknowledgment(0);
+        this.setAckFlag((byte) 0);
+        this.setFinFlag((byte) 0 );
+        this.setWindowSize(10);
+        this.setNextHop((byte) 0);
+        this.setDataLength(message.getBytes().length);
+        this.setData(message);
            //this.setData(encryption.encrypt(message, HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM));
-          this.sendToTransportLayer(this, socket);
+        this.sendToTransportLayer(this, socket);
     }
 
     public void sendToTransportLayer(Packet p, MulticastSocket socket) throws UnknownHostException {
@@ -126,12 +126,12 @@ public class Packet implements Serializable{
 
     public void receiveFromTransportLayer() throws Exception {
         //System.out.println(this.getData());
-        System.out.println(this.getData().length);
+        //System.out.println(this.getData().length);
         Encryption encryption = new Encryption();
         System.out.println(this.getData().length + " RECEIVED");
         String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
                 "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.data/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
+                "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage()/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
         sendToApplicationLayer(message);
     }
 
@@ -154,12 +154,13 @@ public class Packet implements Serializable{
     }
 
     public void setData(String data) {
-        //this.data = data;
-       System.arraycopy(data, 0, this.data, 0, this.dataLength);
+        byte[] stringData = data.getBytes();
+        System.arraycopy(stringData, 0, this.data, 0, this.dataLength);
         for(int i = this.dataLength; i < 128; i++) {
             this.data[i] = (byte) 0;
         }
-        System.out.println(this.data.toString());
+        //System.out.println(this.data.toString());
+        //System.out.println(new String(this.data));
         System.out.println(this.data.length + " SENT");
     }
 
