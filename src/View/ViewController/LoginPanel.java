@@ -50,6 +50,8 @@ public class LoginPanel implements Initializable {
     private double xOffset;
     private double yOffset;
     private Scene scene;
+    public Client client;
+    String username;
 
     private static LoginPanel instance;
 
@@ -65,10 +67,17 @@ public class LoginPanel implements Initializable {
         this.portNumber = Integer.parseInt(text);
     }
 
+    public void setUser(String text) {this.username = text;}
+
+    public String getUsername() {
+        return this.username;
+    }
+
     public void loginButtonAction() throws IOException {
         setPortNumber(portTextfield.getText());
+        setUser(usernameTextfield.getText());
         Stage stage = new Stage();
-        Client client = new Client(usernameTextfield.getText(),  getPortNumber());
+         client = new Client(getUsername(),  getPortNumber());
         client.connect();
        // String picture = selectedPicture.getText();
 
@@ -77,6 +86,9 @@ public class LoginPanel implements Initializable {
         chat = fmxlLoader.<ChatController>getController();
         chat.setPortNumber(getPortNumber());
         chat.setImageLabel(selectedPicture.getText());
+        chat.setUsername(getUsername());
+        chat.setClient(client);
+        chat.chatPane.getItems().add(client.getReceivedBuffer().values());
         stage.setScene((new Scene(window)));
         stage.show();
     }

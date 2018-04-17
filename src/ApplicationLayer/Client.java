@@ -95,7 +95,10 @@ public class Client {
      * Instantiates the objects that handle communication.
      */
     public void connect() {
-
+        String s = name.concat(" has joined the channel");
+        List<String> joined = new ArrayList<>();
+        joined.add(s);
+        receivedBuffer.put(0,joined);
         try {
             //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.getListeningPort());
