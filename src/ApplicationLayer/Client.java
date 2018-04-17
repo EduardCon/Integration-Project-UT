@@ -47,6 +47,18 @@ public class Client {
      */
     private NetworkHandlerReceiver broadcastReceiver;
 
+    public Client() {
+
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setListeningPort(int listeningPort) {
+        this.listeningPort = listeningPort;
+    }
+
     /**
      * The port that this client is listening to.
      */
@@ -72,7 +84,7 @@ public class Client {
      */
     public Client(String name) {
         this.name = name;
-        //this.listeningPort = this.findClientPort();
+        this.listeningPort = this.findClientPort();
         this.deviceNo = this.listeningPort % 10;
     }
 
@@ -106,7 +118,7 @@ public class Client {
 
 
 
-        System.out.println("Client " + this.name + " has port: " + this.listeningPort + " and number: " + this.deviceNo);
+        System.out.println("Client " + this.getName() + " has port: " + this.getListeningPort() + " and number: " + this.deviceNo);
 
     }
 
@@ -195,6 +207,8 @@ public class Client {
     public int getDeviceNo() {
         return this.deviceNo;
     }
+
+    public void setDeviceNo(int deviceNo) {this.deviceNo = deviceNo;}
 
     /**
      * Getter.
