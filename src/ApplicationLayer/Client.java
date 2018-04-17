@@ -82,10 +82,9 @@ public class Client {
      * Client constructor.
      * @param name The name of the Client.
      */
-    public Client(String name) {
+    public Client(String name, int listeningPort) {
         this.name = name;
-        this.listeningPort = this.findClientPort();
-        this.deviceNo = this.listeningPort % 10;
+        this.listeningPort = listeningPort;
     }
 
     /**
@@ -96,7 +95,7 @@ public class Client {
 
         try {
             //Create a new socket for this client's listening port.
-            this.socket = new MulticastSocket(4446);
+            this.socket = new MulticastSocket(this.getListeningPort());
 
             //Get the multicast group address.
             this.groupAddress = InetAddress.getByName(Utils.multiCastAddress);

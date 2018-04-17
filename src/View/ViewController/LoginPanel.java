@@ -61,7 +61,7 @@ public class LoginPanel implements Initializable {
     }
     public void loginButtonAction() throws IOException {
         Stage stage = new Stage();
-        Client client = new Client(usernameTextfield.getText());
+        Client client = new Client(usernameTextfield.getText(), Integer.parseInt(portTextfield.getText()));
         client.connect();
        // String picture = selectedPicture.getText();
 

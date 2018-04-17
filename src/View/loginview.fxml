@@ -38,8 +38,6 @@
             <RowConstraints maxHeight="110.0" minHeight="9.0" prefHeight="11.0" />
          </rowConstraints>
          <children>
-            <Label text="Hostname: " textAlignment="CENTER" textFill="#f89406" GridPane.rowIndex="5" />
-            <TextField fx:id="hostnameTextfield" prefWidth="188.0" text="localhost" GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label text="Port: " textFill="#f89406" GridPane.rowIndex="6" />
             <TextField fx:id="portTextfield" prefHeight="13.0" prefWidth="149.0" text="9001" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <Label text="Username: " textFill="#f89406" GridPane.rowIndex="3" />
@@ -91,8 +89,8 @@
                </GridPane.margin>
             </HBox>
             <Button id="connectBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#loginButtonAction" stylesheets="styles/Login.css" text="Connect" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <Button mnemonicParsing="false" text="CAdhoc" onAction="#connectAdhocButton" GridPane.rowIndex="7" />
-            <Button mnemonicParsing="false" text="DAdhoc" onAction="#disconnectAdhocButton" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+            <Button mnemonicParsing="false" onAction="#connectAdhocButton" text="CAdhoc" GridPane.rowIndex="7" />
+            <Button mnemonicParsing="false" onAction="#disconnectAdhocButton" text="DAdhoc" GridPane.columnIndex="2" GridPane.rowIndex="7" />
          </children>
       </GridPane>
    </right>
