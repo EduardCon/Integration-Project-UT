@@ -1,6 +1,8 @@
 package View.ViewController;
 
 import ApplicationLayer.Client;
+import Util.Utils;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
@@ -8,6 +10,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -22,7 +25,7 @@ public class ChatController implements Initializable{
     Stage stage;
 
     public void sendButton() throws Exception {
-        Client client = new Client();
+        Client client = new Client(messageBox.getText(), getPortNumber());
         client.connect();
         String message = messageBox.getText();
         System.out.println("PORT NUMBER " + getPortNumber());
@@ -30,7 +33,7 @@ public class ChatController implements Initializable{
         if(!messageBox.getText().isEmpty()) {
             chatPane.getItems().add(message);
             System.out.println("PORT NUMBER " + getPortNumber());
-            client.sendToProceessingLayer(message, getPortNumber());
+            client.sendToProceessingLayer(message, Utils.multiCastGroupPort);
             messageBox.clear();
         }
     }
@@ -44,7 +47,12 @@ public class ChatController implements Initializable{
     }
 
     public synchronized void addToChat() {
-
+        Task<HBox> otherMessages = new Task<HBox>() {
+            @Override
+            protected HBox call() throws Exception {
+                return null;
+            }
+        }
     }
 
     public void setImageLabel(String selectedPicture) {
