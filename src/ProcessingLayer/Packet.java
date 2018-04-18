@@ -243,9 +243,8 @@ public class Packet {
     /**
      * Method for receiving a packet from the lower Transport Layer.
      * It extracts the message and forwards it to the upper Application Layer to the Client or to the RoutingTable.
-     * @throws Exception
      */
-    public void receiveFromTransportLayer() throws Exception {
+    public void receiveFromTransportLayer(){
         //System.out.println(this.getData());
         //System.out.println(this.getData().length);
         if(this.packetType == 2) {

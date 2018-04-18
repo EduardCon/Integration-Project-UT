@@ -4,6 +4,7 @@ import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.scene.control.Tab;
+import javafx.scene.text.TextAlignment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -97,6 +98,29 @@ public class RoutingTable {
          */
         public int getDistance() {
             return distance;
+        }
+
+        /**
+         * Setter.
+         * @param destination The new destination.
+         */
+        public void setDestination(int destination) {
+            this.destination = destination;
+        }
+
+        /**
+         * Setter.
+         * @param nextHop The new next hop.
+         */
+        public void setNextHop(int nextHop) {
+            this.nextHop = nextHop;
+        }
+
+        /**Setter.
+         * @param distance The new distance.
+         */
+        public void setDistance(int distance) {
+            this.distance = distance;
         }
     }
 
@@ -231,13 +255,16 @@ public class RoutingTable {
         for (TableEntry tb : list) {
             if (tb.getDestination() == entry.getDestination()) {
                 found = true;
-                if (tb.getDistance() > entry.getDistance()) {
+                if (tb.getDistance() > entry.getDistance() && entry.getDistance() != 0) {
+                    //System.out.println("Removed: " + tb.getDistance() + " " + tb.getDestination() + " " + tb.getNextHop());
                     list.remove(tb);
+                    //System.out.println("Added: " + entry.getDistance() + " " + entry.getDestination() + " " + entry.getNextHop());
                     list.add(entry);
                     return true;
                 }
             }
-            if (found == false) {
+            if (!found) {
+                //System.out.println("Added: " + entry.getDistance() + " " + entry.getDestination() + " " + entry.getNextHop() + "(not found)");
                 list.add(entry);
                 return true;
             }
@@ -262,7 +289,11 @@ public class RoutingTable {
             List<TableEntry> list = this.table.get(i);
             if(list == null) {
                 // If not, we add it.
-                this.table.put(i, list);
+                List<TableEntry> newList = receivedTable.get(i);
+                for(TableEntry t : newList) {
+                    t.setDistance(t.getDistance() + 1);
+                }
+                this.table.put(i, newList);
                 updateTable = true;
             } else {
                 // There is already a list with the given key in our table.

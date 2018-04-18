@@ -68,12 +68,14 @@ public class NetworkHandlerReceiver extends Thread {
      * @param data The data to be sent.
      */
     public void sendToProcessingLayer(byte[] data) {
+        Packet p = null;
         try {
-            Packet p = new Packet(data, this.client);
-            p.receiveFromTransportLayer();
-        } catch (Exception e) {
-            e.printStackTrace();
+            p = new Packet(data, this.client);
+        } catch (InvalidPacketFormat invalidPacketFormat) {
+            invalidPacketFormat.printStackTrace();
         }
+        p.receiveFromTransportLayer();
+
 
 
     }
