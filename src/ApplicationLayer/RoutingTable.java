@@ -64,7 +64,7 @@ public class RoutingTable {
 
 
         /**
-         * Constructor
+         * Constructorss
          * @param destination The destination device.
          * @param nextHop Next hop in route.
          * @param distance The distance to the destination.
