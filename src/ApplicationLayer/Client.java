@@ -4,6 +4,9 @@ import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -15,7 +18,7 @@ import java.util.*;
 /**
  * Class for the Client object used for connecting to the multicast group.
  */
-public class Client {
+public class Client extends Observable {
 
     /**
      * The name of the Client.
@@ -52,6 +55,23 @@ public class Client {
      */
     private Map<Integer, List<String>> receivedBuffer;
 
+<<<<<<< HEAD
+=======
+    public String lastMessageTodDisplay;
+
+    public Client() {
+
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setListeningPort(int listeningPort) {
+        this.listeningPort = listeningPort;
+    }
+
+>>>>>>> develop
     /**
      * The port that this client is listening to.
      */
@@ -86,6 +106,7 @@ public class Client {
         this.deviceNo = listeningPort % 10;
         this.listeningPort = listeningPort;
         receivedBuffer = new HashMap<>();
+
     }
 
     /**
@@ -94,7 +115,10 @@ public class Client {
      * Instantiates the routing table object.
      */
     public void connect() {
-
+        String s = name.concat(" has joined the channel");
+        List<String> joined = new ArrayList<>();
+        joined.add(s);
+        receivedBuffer.put(0,joined);
         try {
             //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.getListeningPort());
@@ -185,6 +209,9 @@ public class Client {
             receivedBuffer.put(deviceNo, list = new ArrayList<>());
         }
         list.add(message);
+        lastMessageTodDisplay = this.name + ": " + message;
+        setChanged();
+        notifyObservers();
 
         System.out.println(receivedBuffer);
         System.out.println("\n--------------- END OF DETAILS -----------------\n");
