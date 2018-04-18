@@ -139,12 +139,15 @@ public class RoutingTable {
         return result;
     }
 
-    public boolean hasASmallerEntryForDestination(int destination, ArrayList<TableEntry> list) {
+    public boolean compareEntry(TableEntry entry, List<TableEntry> list) {
         for(TableEntry tb : list) {
-            if(tb.getDestination() == destination && tb.getDistance() > ) {
+            if(tb.getDestination() == entry.getDestination() && tb.getDistance() > entry.getDistance()) {
+                list.remove(tb);
+                list.add(entry);
                 return true;
             }
         }
+        return false;
     }
 
     public void receiveFromProcessingLayer(Packet packet) {
@@ -162,41 +165,21 @@ public class RoutingTable {
                 this.table.put(i, list);
                 updateTable = true;
             } else {
+                // There is already a list with the given key in our table.
                 List<TableEntry> receivedList = receivedTable.get(i);
+                // Go through each entry in the received table and check if there is a similar entry in our table.
                 for(TableEntry entry : receivedList) {
-                    if(list.hasASmallerEntryForDestination(entry.getDestination()), list) {
-
+                    if(compareEntry(entry, list)) {
+                        updateTable = true;
                     }
                 }
-                // There is already a list with the given key in our table.
-
             }
         }
 
-//        int deviceNo = packet.getSourcePort() % 10;
-//        TableEntry entry = new TableEntry(deviceNo, packet.getNextHop(), 1);
-//        List<TableEntry>  list = table.get(deviceNo);
-//
-//        if(list == null) {
-//            table.put(deviceNo, list = new ArrayList<>());
-//            list.add(entry);
-//            updateTable = true;
-//            //this.printTable();
-//        } else {
-//            for(TableEntry i : list) {
-//              if(i.getDestination() == entry.getDestination() && i.getDistance() > entry.getDistance()) {
-//                  list.remove(i);
-//                  list.add(entry);
-//                  updateTable = true;
-//                  //this.printTable();
-//              }
-//            }
-//        }
-//        if(updateTable) {
-//            this.printTable();
-//            //System.out.println(this.table.toString());
-//            this.broadcastHandler.setMessage(this.table.toString());
-//        }
+        if(updateTable) {
+            this.printTable();
+            this.broadcastHandler.setMessage(this.convertToStringMessage(table));
+        }
     }
 
     public void printTable() {
