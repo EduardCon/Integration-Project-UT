@@ -14,43 +14,98 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for
+ * Class for the routing table.
+ * Part of the Application Layer.
  */
 public class RoutingTable {
 
+    /**
+     * The client instantiating this table.
+     */
     private Client client;
+
+    /**
+     * The broadcast handler.
+     */
     private BroadcastHandler broadcastHandler;
+
+    /**
+     * Listener for the receiving broadcasts.
+     */
     private NetworkHandlerReceiver broadcastReceiver;
+
+    /**
+     * Map that stores routing table entries.
+     * Each device number acts as a key,
+     * Each key has a lists of TableEntry objects.
+     */
     private Map<Integer, List<TableEntry>> table;
 
 
+    /**
+     * Inner class for a table entry.
+     */
     class TableEntry {
 
+        /**
+         * This is the device to which there is a known route.
+         */
         private int destination;
+
+        /**
+         * The next hop needed to reach the destination.
+         */
         private int nextHop;
+
+        /**
+         * Total distance to the destination.
+         */
         private int distance;
 
 
+        /**
+         * Constructor
+         * @param destination The destination device.
+         * @param nextHop Next hop in route.
+         * @param distance The distance to the destination.
+         */
         public TableEntry(int destination, int nextHop, int distance) {
             this.destination = destination;
             this.nextHop = nextHop;
             this.distance = distance;
         }
 
+        /**
+         * Getter.
+         * @return The destination.
+         */
         public int getDestination() {
             return destination;
         }
 
+        /**
+         * Getter.
+         * @return The next hop.
+         */
         public int getNextHop() {
             return nextHop;
         }
 
+        /**
+         * Getter.
+         * @return The distance to the destination.
+         */
         public int getDistance() {
             return distance;
         }
     }
 
 
+    /**
+     * Constructor.
+     * Starts the automatic broadcaster and the listener for incoming broadcasts.
+     * @param client The client instantiating this object.
+     */
     public RoutingTable(Client client) {
         this.table = new HashMap<>();
         this.client = client;
@@ -65,6 +120,16 @@ public class RoutingTable {
     <x>.d.n.d/d.n.d/
      */
 
+    /**
+     * Method for converting the map representation of the table into a String for easier transmission over the network.
+     * Each key is converted to '<key>'
+     * After each key, the three values from the TableEntry object will follow as ",data1,data2,data3".
+     * Each TableEntry object from the list is ended with a '/'.
+     * Eg. if device number 1 has a TableEntry of <2, 3, 2> (it can reach device number 2 via 3, with a distance of 2),
+     * the String representation will be <1>,2,3,2/
+     * @param map The table to be sent.
+     * @return The String representation.
+     */
     public String convertToStringMessage(Map<Integer, List<TableEntry>> map) {
         String result = "";
         for(int i : map.keySet()) {
@@ -76,6 +141,7 @@ public class RoutingTable {
         //System.out.println(result);
         return result;
     }
+
 
     public void testTable() {
         // list from device 3
@@ -101,6 +167,11 @@ public class RoutingTable {
         System.out.println(this.convertToStringMessage(this.parseTable(parsed)));
     }
 
+    /**
+     * Method for creating a starting table.
+     * It stores a single entry: <itself, itself, 0> (it can reach itself via itself with a distance of 0).
+     * It parses the table and sets it as the default message of the broadcaster.
+     */
     public void initializeTable() {
         TableEntry tb = new TableEntry(this.client.getDeviceNo(), this.client.getDeviceNo(), 0);
         List<TableEntry> list = new ArrayList<>();
@@ -116,6 +187,11 @@ public class RoutingTable {
     <x.d.n.d/d.n.d/>
      */
 
+    /**
+     * Method for converting a String representation of a table into a map.
+     * @param message The String representation of the table.
+     * @return The map representation.
+     */
     public Map<Integer, List<TableEntry>> parseTable (String message) {
         Map<Integer, List<TableEntry>> result = new HashMap<>();
         String[] devices = message.split("<");
@@ -142,10 +218,26 @@ public class RoutingTable {
         return result;
     }
 
+    /**
+     * Checks to see if we can add a new entry to our list or find an entry with a cheaper distance.
+     * If we find such an entry, update the list.
+     * @param entry The entry used to compare.
+     * @param list The list in which it will search.
+     * @return True if there was an update, false if not.
+     */
     public boolean compareEntry(TableEntry entry, List<TableEntry> list) {
-        for(TableEntry tb : list) {
-            if(tb.getDestination() == entry.getDestination() && tb.getDistance() > entry.getDistance()) {
-                list.remove(tb);
+
+        boolean found = false;
+        for (TableEntry tb : list) {
+            if (tb.getDestination() == entry.getDestination()) {
+                found = true;
+                if (tb.getDistance() > entry.getDistance()) {
+                    list.remove(tb);
+                    list.add(entry);
+                    return true;
+                }
+            }
+            if (found == false) {
                 list.add(entry);
                 return true;
             }
@@ -153,6 +245,11 @@ public class RoutingTable {
         return false;
     }
 
+    /**
+     * Method for receiving a packet from the Processing Layer.
+     * Parses the messages and tries to update the table.
+     * @param packet The packet received.
+     */
     public void receiveFromProcessingLayer(Packet packet) {
 
         Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
@@ -172,7 +269,7 @@ public class RoutingTable {
                 List<TableEntry> receivedList = receivedTable.get(i);
                 // Go through each entry in the received table and check if there is a similar entry in our table.
                 for(TableEntry entry : receivedList) {
-                    if(compareEntry(entry, list)) {
+                    if (compareEntry(entry, list)) {
                         updateTable = true;
                     }
                 }
@@ -185,6 +282,9 @@ public class RoutingTable {
         }
     }
 
+    /**
+     * Method for printing a visual representation of the table.
+     */
     public void printTable() {
         System.out.println("-------------------START---------------------");
         for(int i : this.table.keySet()) {
@@ -199,6 +299,10 @@ public class RoutingTable {
         System.out.println("-------------------END---------------------");
     }
 
+    /**
+     * Getter.
+     * @return The client that instantiated this object.
+     */
     public Client getClient() {
         return this.client;
     }

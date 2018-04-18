@@ -10,33 +10,111 @@ import java.io.Serializable;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
-public class Packet implements Serializable{
+/**
+ * Class that handles processing the incoming and outgoing data.
+ * Part of the Processing Layer.
+ */
 
+public class Packet {
+
+    /**
+     * The data has a maximum size of 128 bytes.
+     */
     private byte[] data = new byte[128];
+
+    /**
+     * The sequence number of the packet.
+     */
     private int sequenceNumber = 0;
+
+    /**
+     * The acknowledgement number of the packet.
+     */
     private int acknowledgment = 0;
+
+    /**
+     * remove?
+     */
     private byte destination = 0;
+
+    /**
+     * Acknowledgement flag.
+     */
     private byte ackFlag = 0;
+
+    /**
+     * Finish flag.
+     */
     private byte finFlag = 0;
+
+    /**
+     * remove?
+     */
     private byte nextHop = 0;
+
+    /**
+     * remove?
+     */
     private int windowSize = 0;
+
+    /**
+     * Source port of the client.
+     */
     private int sourcePort = 0;
+
+    /**
+     * Destination port.
+     */
     private int destinationPort = 0;
+
+    /**
+     * The length of the data.
+     */
     private int dataLength;
+
+    /**
+     * Packet type.
+     */
     private byte packetType;
+
+    /**
+     * Client who sent / needs to receive this packet.
+     * Used to forward towards the Application Layer.
+     */
     private Client client;
+
+    /**
+     * remove?
+     */
     private static final String MAC_ALGORITHM = "HMACSHA256";
+
+    /**
+     * remove?
+     */
     private static final String HEX_AES_KEY =
             "B22E2B9A77C6DE2B9A779E7B2C6DA76E51C829E725EC8478A76E51C825EC8478";
+
+    /**
+     * remove?
+     */
     private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
 
-    public Packet() {}
-
+    /**
+     * Constructor with client.
+     * @param packet Array of bytes which will construct the packet.
+     * @param client The client.
+     * @throws InvalidPacketFormat If the packet is invalid.
+     */
     public Packet(byte[] packet, Client client) throws InvalidPacketFormat {
         this(packet);
         this.client = client;
     }
 
+    /**
+     * Constructor without a client.
+     * @param packet Array of bytes which will construct the packet.
+     * @throws InvalidPacketFormat
+     */
     public Packet(byte[] packet) throws InvalidPacketFormat {
         packetType = packet[0];
 
@@ -68,10 +146,21 @@ public class Packet implements Serializable{
         }
     }
 
+    /**
+     * Converts a 4 consecutive bytes from a byte array to a integer.
+     * @param bytes The byte array to be converted.
+     * @param i The position of the array from where we will start converting.
+     * @return The converted array.
+     */
     public int fromByteArray(byte[] bytes, int i) {
         return bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 | (bytes[i + 2] & 0xFF) << 8 | (bytes[i + 3] & 0xFF);
     }
 
+    /**
+     * Convert an integer to an array of bytes.
+     * @param x The integer to be converted.
+     * @return The byte array representation.
+     */
     public byte[] toBytes(int x) {
         byte[] result = new byte[4];
 
@@ -83,6 +172,10 @@ public class Packet implements Serializable{
         return result;
     }
 
+    /**
+     *
+     * @return
+     */
     public byte[] getBytes() {
         byte[] arr = new byte[256];
         arr[0] = this.getPacketType();
@@ -100,6 +193,16 @@ public class Packet implements Serializable{
         return arr;
     }
 
+    /**
+     * Method for receiving a message from the upper Application Layer.
+     * It processes the message into a packet and forwards it to the lower Transport Layer.
+     * @param destinationPort The destination port of the message.
+     * @param listeningPort The listening port of the client (acts as a source port of the message).
+     * @param message The message to be sent.
+     * @param socket The client's communication socket.
+     * @param packetType This packet's type.
+     * @throws Exception
+     */
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
         //Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
@@ -117,13 +220,23 @@ public class Packet implements Serializable{
         this.sendToTransportLayer(this, socket);
     }
 
+    /**
+     * Sends a packet to the lower Transport Layer.
+     * @param p The packet to be sent.
+     * @param socket The client's communication socket.
+     * @throws UnknownHostException
+     */
     public void sendToTransportLayer(Packet p, MulticastSocket socket) throws UnknownHostException {
         NetworkHandlerSender sender = new NetworkHandlerSender(socket);
         sender.receiveFromProcessingLayer(p);
 
     }
 
-
+    /**
+     * Method for receiving a packet from the lower Transport Layer.
+     * It extracts the message and forwards it to the upper Application Layer to the Client or to the RoutingTable.
+     * @throws Exception
+     */
     public void receiveFromTransportLayer() throws Exception {
         //System.out.println(this.getData());
         //System.out.println(this.getData().length);
@@ -140,17 +253,33 @@ public class Packet implements Serializable{
         }
     }
 
+    /**
+     * Sends a packet to the upper Application Layer, to the Routing Table.
+     * @param packet The packet to be sent.
+     */
     public void sendToRoutingTable(Packet packet) {
         this.client.getRoutingTable().receiveFromProcessingLayer(packet);
     }
 
+    /**
+     * Send a message to the upper Application Layer, to the Client.
+     * @param message The message to be sent.
+     * @param deviceNo The device number of the sender.
+     */
     public void sendToApplicationLayer(String message, int deviceNo) {
         this.client.receiveFromProcessingLayer(message, deviceNo);
     }
 
+    /**
+     * Method for printing the data of this packet.
+     */
     public void print() {System.out.println(new String(this.getData())); }
 
 
+    /**
+     * Getter.
+     * @return The message from the packet.
+     */
     public String getMessage() {
         byte[] data = new byte[this.dataLength];
         System.arraycopy(this.data, 0, data, 0, this.dataLength);
@@ -158,10 +287,18 @@ public class Packet implements Serializable{
         return message;
     }
 
+    /**
+     * Getter.
+     * @return The data as an array of bytes.
+     */
     public byte[] getData() {
         return data;
     }
 
+    /**
+     * Setter.
+     * @param data The data as an array of bytes.
+     */
     public void setData(String data) {
         byte[] stringData = data.getBytes();
         System.arraycopy(stringData, 0, this.data, 0, this.dataLength);
@@ -173,86 +310,170 @@ public class Packet implements Serializable{
         //System.out.println(this.data.length + " SENT");
     }
 
+    /**
+     * Getter.
+     * @return The sequence number of the packet.
+     */
     public int getSequenceNumber() {
         return sequenceNumber;
     }
 
+    /**
+     * Setter.
+     * @param sequenceNumber The new sequence number.
+     */
     public void setSequenceNumber(int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
     }
 
+    /**
+     * Getter.
+     * @return The acknowledgement number of the packet.
+     */
     public int getAcknowledgment() {
         return acknowledgment;
     }
 
+    /**
+     * Setter.
+     * @param acknowledgment The new acknowledgement number.
+     */
     public void setAcknowledgment(int acknowledgment) {
         this.acknowledgment = acknowledgment;
     }
 
+    /**
+     * Getter.
+     * @return The destination device.
+     */
     public byte getDestination() {
         return destination;
     }
 
+    /**
+     * Setter.
+     * @param destination The new destination.
+     */
     public void setDestination(byte destination) {
         this.destination = destination;
     }
 
+    /**
+     * Setter.
+     * @param dataLength The new data length.
+     */
     public void setDataLength(int dataLength) {
         this.dataLength = dataLength;
     }
 
+    /**
+     * Getter.
+     * @return The acknowledgement flag.
+     */
     public byte getAckFlag() {
         return ackFlag;
     }
 
+    /**
+     * Setter.
+     * @param ackFlag The new acknowledgement flag.
+     */
     public void setAckFlag(byte ackFlag) {
         this.ackFlag = ackFlag;
     }
 
+    /**
+     * Getter.
+     * @return The final flag.
+     */
     public byte getFinFlag() {
         return finFlag;
     }
 
+    /**
+     * Setter.
+     * @param finFlag The new final flag.
+     */
     public void setFinFlag(byte finFlag) {
         this.finFlag = finFlag;
     }
 
+    /**
+     * Getter.
+     * @return The next hop.
+     */
     public byte getNextHop() {
         return nextHop;
     }
 
+    /**
+     * Setter
+     * @param nextHop The new next hop.
+     */
     public void setNextHop(byte nextHop) {
         this.nextHop = nextHop;
     }
 
+    /**
+     * Getter.
+     * @return The window size.
+     */
     public int getWindowSize() {
         return windowSize;
     }
 
+    /**
+     * Setter.
+     * @param windowSize The new window szie.
+     */
     public void setWindowSize(int windowSize) {
         this.windowSize = windowSize;
     }
 
+    /**
+     * Getter.
+     * @return The source port.
+     */
     public int getSourcePort() {
         return sourcePort;
     }
 
+    /**
+     * Setter.
+     * @param sourcePort The new source port.
+     */
     public void setSourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
     }
 
+    /**
+     * Getter.
+     * @return The destination port.
+     */
     public int getDestinationPort() {
         return destinationPort;
     }
 
+    /**
+     * Setter.
+     * @param destinationPort The new destination port.
+     */
     public void setDestinationPort(int destinationPort) {
         this.destinationPort = destinationPort;
     }
 
+    /**
+     * Getter.
+     * @return The packet type.
+     */
     public byte getPacketType() {
         return this.packetType;
     }
 
+    /**
+     * Setter.
+     * @param packetType The new packet type.
+     */
     public void setPacketType(byte packetType) {
         this.packetType = packetType;
     }

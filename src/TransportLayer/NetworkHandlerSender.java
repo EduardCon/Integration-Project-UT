@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 
 /**
  * Object that handles outgoing packets.
+ * Part of the Transport Layer.
  */
 public class NetworkHandlerSender {
 
@@ -30,6 +31,8 @@ public class NetworkHandlerSender {
 
     /**
      * Constructor.
+     * @param socket The socket on which it will listen.
+     * @throws UnknownHostException
      */
     public NetworkHandlerSender(MulticastSocket socket) throws UnknownHostException {
         this.socket = socket;
@@ -37,8 +40,11 @@ public class NetworkHandlerSender {
     }
 
     /**
+     * Method for sending a packet as a DatagramPacket.
+     * @param packet The byte array containing the data.
+     * @param port The destination port.
+     * @throws IOException
      */
-
     public void send(byte[] packet, int port) throws IOException {
 
         DatagramPacket toSend = new DatagramPacket(packet, packet.length, this.groupAddress, port);
@@ -46,6 +52,10 @@ public class NetworkHandlerSender {
         System.out.println("Sent <" + packet + "> to " + this.groupAddress + " on port: " + port);
     }
 
+    /**
+     * Method for receiving a packet from the upper Processing Layer.
+     * @param p The packet received.
+     */
     public void receiveFromProcessingLayer(Packet p) {
         try {
             int port = p.getDestinationPort();

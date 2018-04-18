@@ -22,6 +22,7 @@ import java.security.spec.InvalidParameterSpecException;
 
 /**
  * The object that handles incoming packets.
+ * Part of the Transport Layer.
  */
 public class NetworkHandlerReceiver extends Thread {
 
@@ -36,14 +37,19 @@ public class NetworkHandlerReceiver extends Thread {
     private InetAddress groupAddress;
 
     /**
-     * Buffer.
+     * The data buffer.
      */
     private byte[] buf = new byte[256];
 
+    /**
+     * The client object instantiating this object.
+     */
     private Client client;
 
     /**
      * Constructor.
+     * @param client The client instantiating this object.
+     * @param socket The client's communication socket.
      */
     public NetworkHandlerReceiver(Client client, MulticastSocket socket) {
         try {
@@ -57,12 +63,14 @@ public class NetworkHandlerReceiver extends Thread {
         this.start();
     }
 
-    public void sendToProcessingLayer(byte[] data) throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException {
+    /**
+     * Send data to the upper Processing Layer.
+     * @param data The data to be sent.
+     */
+    public void sendToProcessingLayer(byte[] data) {
         try {
             Packet p = new Packet(data, this.client);
             p.receiveFromTransportLayer();
-        } catch (IOException | ClassNotFoundException | InvalidPacketFormat e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -72,8 +80,8 @@ public class NetworkHandlerReceiver extends Thread {
 
     /**
      * Thread method.
+     * Constantly listening for packets.
      */
-
     public void run() {
         try {
             System.out.println("Listening...");
@@ -82,7 +90,7 @@ public class NetworkHandlerReceiver extends Thread {
                 socket.receive(packet);
                 this.sendToProcessingLayer(packet.getData());
             }
-        } catch (IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidParameterSpecException | BadPaddingException | IllegalBlockSizeException | InvalidKeySpecException | InvalidAlgorithmParameterException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
