@@ -55,23 +55,12 @@ public class Client extends Observable {
      */
     private Map<Integer, List<String>> receivedBuffer;
 
-<<<<<<< HEAD
-=======
     public String lastMessageTodDisplay;
 
     public Client() {
 
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setListeningPort(int listeningPort) {
-        this.listeningPort = listeningPort;
-    }
-
->>>>>>> develop
     /**
      * The port that this client is listening to.
      */
