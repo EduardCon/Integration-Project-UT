@@ -177,7 +177,7 @@ public class RoutingTable {
         List<TableEntry> list = new ArrayList<>();
         list.add(tb);
         table.put(this.client.getDeviceNo(), list);
-        System.out.println(this.convertToStringMessage(table));
+        //System.out.println(this.convertToStringMessage(table));
         this.parseTable(this.convertToStringMessage(table));
         this.broadcastHandler.setMessage(this.convertToStringMessage(table));
         this.printTable();

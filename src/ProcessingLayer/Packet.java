@@ -100,6 +100,14 @@ public class Packet {
     private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
 
     /**
+     * Constructor for an empty packet.
+     */
+    public Packet() {
+
+    }
+
+
+    /**
      * Constructor with client.
      * @param packet Array of bytes which will construct the packet.
      * @param client The client.
