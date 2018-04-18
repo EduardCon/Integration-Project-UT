@@ -47,19 +47,10 @@ public class Client {
      */
     private NetworkHandlerReceiver broadcastReceiver;
 
+    /**
+     * The buffer that stores incoming messages.
+     */
     private Map<Integer, List<String>> receivedBuffer;
-
-    public Client() {
-
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setListeningPort(int listeningPort) {
-        this.listeningPort = listeningPort;
-    }
 
     /**
      * The port that this client is listening to.
@@ -76,8 +67,14 @@ public class Client {
      */
     private MulticastSocket groupSocket;
 
+    /**
+     * The InetAddress of the group.
+     */
     private InetAddress groupAddress;
 
+    /**
+     * Routing table object.
+     */
     private RoutingTable routingTable;
 
     /**
@@ -94,6 +91,7 @@ public class Client {
     /**
      * Connects the Client to the multicast group.
      * Instantiates the objects that handle communication.
+     * Instantiates the routing table object.
      */
     public void connect() {
 
@@ -161,7 +159,7 @@ public class Client {
 
 
     /**
-     * Method for sending a message.
+     * Method for sending a message to the processing layer.
      * @param message The message to be sent.
      * @param port The destination port.
      * @throws IOException
@@ -171,6 +169,12 @@ public class Client {
         packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
     }
 
+
+    /**
+     * Method for receiving a message from the processing layer and adding it to the buffer.
+     * @param message The message received.
+     * @param deviceNo The device who sent it.
+     */
     public void receiveFromProcessingLayer(String message, int deviceNo) {
 
 
@@ -187,22 +191,28 @@ public class Client {
     }
 
     /**
-     * Get the listening port.
+     * Getter.
      * @return The listening port.
      */
     public int getListeningPort() {
         return this.listeningPort;
     }
 
+    /**
+     * Getter.
+     * @return The routing table.
+     */
     public RoutingTable getRoutingTable() {
         return this.routingTable;
     }
 
+    /**
+     * Getter.
+     * @return The buffer.
+     */
     public Map<Integer, List<String>> getReceivedBuffer() {
         return this.receivedBuffer;
     }
-
-
 
     /**
      * Getter.
@@ -228,8 +238,6 @@ public class Client {
         return this.deviceNo;
     }
 
-    public void setDeviceNo(int deviceNo) {this.deviceNo = deviceNo;}
-
     /**
      * Getter.
      * @return This client's communication socket.
@@ -246,4 +254,26 @@ public class Client {
         return this.groupSocket;
     }
 
+    /**
+     * Setter.
+     * @param name The client's name.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Setter.
+     * @param deviceNo The device number.
+     */
+    public void setDeviceNo(int deviceNo) {this.deviceNo = deviceNo;}
+
+    /**
+     * Setter.
+     * @param listeningPort The listening port.
+     */
+    public void setListeningPort(int listeningPort) {
+        this.listeningPort = listeningPort;
+    }
 }
+

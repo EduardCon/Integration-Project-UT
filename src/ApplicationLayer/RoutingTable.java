@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for
+ */
 public class RoutingTable {
 
     private Client client;
@@ -51,10 +54,10 @@ public class RoutingTable {
     public RoutingTable(Client client) {
         this.table = new HashMap<>();
         this.client = client;
-        this.testTable();
-//        this.broadcastHandler = new BroadcastHandler(this);
-//        this.initializeTable();
-//        this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
+        //this.testTable();
+          this.broadcastHandler = new BroadcastHandler(this);
+          this.initializeTable();
+          this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
 
     }
 
@@ -106,7 +109,7 @@ public class RoutingTable {
         System.out.println(this.convertToStringMessage(table));
         this.parseTable(this.convertToStringMessage(table));
         this.broadcastHandler.setMessage(this.convertToStringMessage(table));
-
+        this.printTable();
     }
 
     /*

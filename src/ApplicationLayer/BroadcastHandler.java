@@ -16,15 +16,47 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class that handles periodic broadcasts of a client's routing table.
+ * Part of the Application Layer.
+ */
 public class BroadcastHandler extends Thread {
 
+    /**
+     * The group port.
+     */
     private int groupPort;
+
+    /**
+     * The InetAddress of the group.
+     */
     private InetAddress groupAddress;
+
+    /**
+     * The message to be broadcasted.
+     */
     private String message;
+
+    /**
+     * The routing table.
+     */
     private RoutingTable routingTable;
+
+    /**
+     * The listening port of the broadcast.
+     */
     private int listeningPort;
+
+    /**
+     * The client's communication socket.
+     */
     private MulticastSocket clientMulticastSocket;
 
+
+    /**
+     * Constructo.
+     * @param routingTable The client's routing table.
+     */
     public BroadcastHandler(RoutingTable routingTable) {
         this.routingTable = routingTable;
         this.groupPort = Utils.multiCastGroupPort;
@@ -43,6 +75,11 @@ public class BroadcastHandler extends Thread {
         this.start();
     }
 
+
+    /**
+     * Override of the Thread method.
+     * Each 5 seconds sends a broadcast.
+     */
     public void run() {
         try {
             System.out.println("Sending broadcast!");
@@ -55,10 +92,18 @@ public class BroadcastHandler extends Thread {
         }
     }
 
+
+    /** Setter.
+     * @param message The message to be broadcasted.
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Sends the message further to the Processing Layer.
+     * @param message The message to be sent.
+     */
     public void sendToProcessingLayer(String message) {
         Packet packet = new Packet();
         try {
