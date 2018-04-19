@@ -54,6 +54,8 @@ public class RoutingTable extends Observable {
          */
         private int distance;
 
+        private int TTL;
+
 
         /**
          * Constructorss
@@ -65,6 +67,7 @@ public class RoutingTable extends Observable {
             this.destination = destination;
             this.nextHop = nextHop;
             this.distance = distance;
+            this.TTL = 5;
         }
 
         /**
@@ -92,6 +95,14 @@ public class RoutingTable extends Observable {
         }
 
         /**
+         * Getter.
+         * @return The time to live.
+         */
+        public int getTTL() {
+            return this.TTL;
+        }
+
+        /**
          * Setter.
          * @param destination The new destination.
          */
@@ -112,6 +123,14 @@ public class RoutingTable extends Observable {
          */
         public void setDistance(int distance) {
             this.distance = distance;
+        }
+
+        public void setTTL(int TTL) {
+            this.TTL = TTL;
+        }
+
+        public void decrementTTL() {
+            this.TTL--;
         }
     }
 
@@ -237,6 +256,7 @@ public class RoutingTable extends Observable {
     public void receiveFromProcessingLayer(Packet packet) {
         Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
 
+        this.refreshTTL(receivedTable);
 
         boolean updateTable = false;
 
@@ -266,11 +286,48 @@ public class RoutingTable extends Observable {
             }
         }
 
+        this.decrementTTL();
+
         if(updateTable) {
             this.printTable();
             this.broadcastHandler.setMessage(this.convertToStringMessage(table));
             notifyObservers();
         }
+    }
+
+    public void decrementTTL() {
+        for(Integer i : this.table.keySet()) {
+            List<TableEntry> list = this.table.get(i);
+            if(list != null) {
+                for(TableEntry t : list) {
+                    t.decrementTTL();
+                }
+            }
+        }
+    }
+
+    public void refreshTTL(Map<Integer, List<TableEntry>> table) {
+        for(Integer i : table.keySet()) {
+            List<TableEntry> receivedList = table.get(i);
+            List<TableEntry> ourList = this.table.get(i);
+            if(ourList != null) {
+                for(TableEntry tb : receivedList) {
+                    TableEntry found = findInOurList(tb, ourList);
+                    if(found != null) {
+                        found.setTTL(5);
+                    }
+                }
+            }
+        }
+    }
+
+    public TableEntry findInOurList(TableEntry tb, List<TableEntry> ourList) {
+        for(TableEntry t : ourList) {
+            if(t.getDestination() == tb.getDestination() && t.getNextHop() == tb.getNextHop() && t.getDistance() == tb.getDistance()) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public void sendToProcessingLayer(String message, int port) {
@@ -321,7 +378,7 @@ public class RoutingTable extends Observable {
             List<TableEntry> l = this.table.get(i);
             if(l != null) {
                 for(TableEntry t : l) {
-                    if(t.destination == (port % 10)) {
+                    if(t.getDestination() == (port % 10) && t.getTTL() != 0) {
                         return t;
                     }
                 }
@@ -342,6 +399,7 @@ public class RoutingTable extends Observable {
                 System.out.println("Destination : " + t.getDestination());
                 System.out.println("Nexthop: " + t.getNextHop());
                 System.out.println("Distance: " + t.getDistance());
+                System.out.println("TTL: " + t.getTTL());
             }
         }
 
@@ -358,5 +416,9 @@ public class RoutingTable extends Observable {
 
     public int getOnlineUsers() {
         return this.table.size();
+    }
+
+    public Map<Integer, List<TableEntry>> getTable() {
+        return this.table;
     }
 }

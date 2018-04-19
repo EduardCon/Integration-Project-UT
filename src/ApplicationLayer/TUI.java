@@ -17,10 +17,10 @@ public class TUI {
 //        String decriptat = encryption.decrypt(criptat);
 //        System.out.println(decriptat);
 
-        while(true){
-            client.sendToProceessingLayer("ediC", 54323);
-            TimeUnit.SECONDS.sleep(2);
-        }
+       // while(true){
+         //   client.sendToProceessingLayer("ediC", 54322);
+           // TimeUnit.SECONDS.sleep(2);
+        //}
         //client.sendToProceessingLayer("Test 2", 54323);
 
     }

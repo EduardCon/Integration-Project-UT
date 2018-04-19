@@ -6,6 +6,8 @@ import Util.Utils;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -80,8 +82,7 @@ public class BroadcastHandler extends Thread {
             e.printStackTrace();
         }
     }
-
-
+    
     /** Setter.
      * @param message The message to be broadcasted.
      */
