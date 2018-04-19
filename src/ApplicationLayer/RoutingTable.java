@@ -9,16 +9,13 @@ import javafx.scene.text.TextAlignment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for the routing table.
  * Part of the Application Layer.
  */
-public class RoutingTable {
+public class RoutingTable extends Observable {
 
     /**
      * The client instantiating this table.
@@ -295,6 +292,7 @@ public class RoutingTable {
                 }
                 this.table.put(i, newList);
                 updateTable = true;
+                setChanged();
             } else {
                 // There is already a list with the given key in our table.
                 List<TableEntry> receivedList = receivedTable.get(i);
@@ -302,6 +300,7 @@ public class RoutingTable {
                 for(TableEntry entry : receivedList) {
                     if (compareEntry(entry, list)) {
                         updateTable = true;
+                        setChanged();
                     }
                 }
             }
@@ -310,6 +309,7 @@ public class RoutingTable {
         if(updateTable) {
             this.printTable();
             this.broadcastHandler.setMessage(this.convertToStringMessage(table));
+            notifyObservers();
         }
     }
 
