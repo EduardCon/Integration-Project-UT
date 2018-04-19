@@ -67,7 +67,7 @@ public class RoutingTable extends Observable {
             this.destination = destination;
             this.nextHop = nextHop;
             this.distance = distance;
-            this.TTL = 5;
+            this.TTL = 10;
         }
 
         /**
@@ -160,7 +160,7 @@ public class RoutingTable extends Observable {
      * @return The String representation.
      */
     public String convertToStringMessage(Map<Integer, List<TableEntry>> map) {
-        String result = "";
+        String result = Integer.toString(this.client.getDeviceNo());
         for(int i : map.keySet()) {
             result += "<" + i  + ">";
             for(TableEntry t : map.get(i)) {
@@ -194,6 +194,9 @@ public class RoutingTable extends Observable {
      */
     public Map<Integer, List<TableEntry>> parseTable (String message) {
         Map<Integer, List<TableEntry>> result = new HashMap<>();
+        if(message.charAt(0) - '0' == this.client.getDeviceNo()) {
+            return null;
+        }
         String[] devices = message.split("<");
         for(String s : devices) {
             if(s.isEmpty()){
@@ -254,44 +257,47 @@ public class RoutingTable extends Observable {
      * @param packet The packet received.
      */
     public void receiveFromProcessingLayer(Packet packet) {
-        Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
-
-        this.refreshTTL(receivedTable);
-
-        boolean updateTable = false;
-
-        // Iterate through each key in the received table
-        for(int i : receivedTable.keySet()) {
-            // Check to see if there is a list with the given key in our table
-            List<TableEntry> list = this.table.get(i);
-            if(list == null) {
-                // If not, we add it.
-                List<TableEntry> newList = receivedTable.get(i);
-                for(TableEntry t : newList) {
-                    t.setDistance(t.getDistance() + 1);
-                }
-                this.table.put(i, newList);
-                updateTable = true;
-                setChanged();
-            } else {
-                // There is already a list with the given key in our table.
-                List<TableEntry> receivedList = receivedTable.get(i);
-                // Go through each entry in the received table and check if there is a similar entry in our table.
-                for(TableEntry entry : receivedList) {
-                    if (compareEntry(entry, list)) {
-                        updateTable = true;
-                        setChanged();
-                    }
-                }
-            }
-        }
 
         this.decrementTTL();
 
-        if(updateTable) {
-            this.printTable();
-            this.broadcastHandler.setMessage(this.convertToStringMessage(table));
-            notifyObservers();
+        Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
+
+        if(receivedTable != null) {
+            this.refreshTTL(receivedTable);
+
+            boolean updateTable = false;
+
+            // Iterate through each key in the received table
+            for(int i : receivedTable.keySet()) {
+                // Check to see if there is a list with the given key in our table
+                List<TableEntry> list = this.table.get(i);
+                if(list == null) {
+                    // If not, we add it.
+                    List<TableEntry> newList = receivedTable.get(i);
+                    for(TableEntry t : newList) {
+                        t.setDistance(t.getDistance() + 1);
+                    }
+                    this.table.put(i, newList);
+                    updateTable = true;
+                    setChanged();
+                } else {
+                    // There is already a list with the given key in our table.
+                    List<TableEntry> receivedList = receivedTable.get(i);
+                    // Go through each entry in the received table and check if there is a similar entry in our table.
+                    for(TableEntry entry : receivedList) {
+                        if (compareEntry(entry, list)) {
+                            updateTable = true;
+                            setChanged();
+                        }
+                    }
+                }
+            }
+
+            if(updateTable) {
+                this.printTable();
+                this.broadcastHandler.setMessage(this.convertToStringMessage(table));
+                notifyObservers();
+            }
         }
     }
 
@@ -301,7 +307,19 @@ public class RoutingTable extends Observable {
             if(list != null) {
                 for(TableEntry t : list) {
                     t.decrementTTL();
+                    if(t.getTTL() <= 0) {
+                        list.remove(t);
+                        System.out.println("REMOVED: " + t.getDestination() + "\n" + t.getNextHop() + "\n" + t.getDistance());
+                    }
                 }
+            }
+        }
+
+        List<TableEntry> list = this.table.get(this.client.getDeviceNo());
+        for(TableEntry t : list) {
+            if(t.getDestination() == this.client.getDeviceNo()) {
+                t.setTTL(10);
+                System.out.println("REFRESHED MY ENTRY");
             }
         }
     }
@@ -314,7 +332,9 @@ public class RoutingTable extends Observable {
                 for(TableEntry tb : receivedList) {
                     TableEntry found = findInOurList(tb, ourList);
                     if(found != null) {
-                        found.setTTL(5);
+                        found.setTTL(10);
+                        System.out.println("-------------------------REFRESHED------------------");
+                        System.out.println(found.getDestination() + "\n" + found.getNextHop() + "\n" + found.getDistance());
                     }
                 }
             }

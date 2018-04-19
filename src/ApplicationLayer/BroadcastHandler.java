@@ -82,7 +82,7 @@ public class BroadcastHandler extends Thread {
             e.printStackTrace();
         }
     }
-    
+
     /** Setter.
      * @param message The message to be broadcasted.
      */
