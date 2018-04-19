@@ -85,10 +85,12 @@ public class LoginPanel implements Initializable {
         Parent window = (Pane) fmxlLoader.load();
         chat = fmxlLoader.<ChatController>getController();
         client.addObserver(chat);
+        client.getRoutingTable().addObserver(chat);
         chat.setPortNumber(getPortNumber());
         chat.setImageLabel(selectedPicture.getText());
         chat.setUsername(getUsername());
         chat.setClient(client);
+        chat.setOnlineLabel(Integer.toString(1));
         chat.chatPane.getItems().add(client.getReceivedBuffer().get(0).toString());
         stage.setScene((new Scene(window)));
         stage.show();

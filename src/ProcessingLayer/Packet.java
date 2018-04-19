@@ -201,7 +201,7 @@ public class Packet {
         this.setAckFlag((byte) 0);
         this.setFinFlag((byte) 0 );
         this.setWindowSize(10);
-        this.setNextHop((byte) (listeningPort % 10));
+        this.setNextHop((byte) (destinationPort % 10));
         this.setDataLength(message.getBytes().length);
         //this.setData(encryption.encrypt(message));
         this.setData(message);
@@ -225,12 +225,25 @@ public class Packet {
      * It extracts the message and forwards it to the upper Application Layer to the Client or to the RoutingTable.
      */
     public void receiveFromTransportLayer() throws Exception{
+        // If it's a text message for this client, pass it to the Application Layer.
         if(this.packetType == 2) {
             //Encryption encryption = new Encryption();
             String smallMessage = this.getMessage();
             sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
         } else if(this.packetType == 1) {
+            // If it's a broadcast, send to the Routing Table
             sendToRoutingTable(this);
+        } else if(this.packetType == 3) {
+            // If the packet was redirected
+            // The packet might be intended for this client
+            if(this.getNextHop() == (byte) this.client.getDeviceNo()) {
+                String smallMessage = this.getMessage();
+                sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
+            } else {
+                // The packet needs more forwarding.
+                int nextHop = this.getNextHop();
+                this.receiveFromApplicationLayer(this.getDestinationPort(), 54320 + nextHop, new String(this.getData()), this.client.getSocket(), 3);
+            }
         }
     }
 

@@ -165,6 +165,8 @@ public class RoutingTable extends Observable {
         this.parseTable(this.convertToStringMessage(table));
         this.broadcastHandler.setMessage(this.convertToStringMessage(table));
         this.printTable();
+        this.setChanged();
+        this.notifyObservers();
     }
     /**
      * Method for converting a String representation of a table into a map.
@@ -268,22 +270,58 @@ public class RoutingTable extends Observable {
         }
     }
 
+    public void sendToProcessingLayer(String message, int port) {
+        // If it is a broadcast for the whole Group.
+        if(port == 4464) {
+            try {
+                Packet packet = new Packet();
+                packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        int deviceNo = port % 10;
+
+        TableEntry t = this.checkForDeviceInTable(port);
+
+        if(t == null) {
+            System.out.println("NO ROUTE AVALIABLE");
+        } else {
+            // There is a direct link to the destination.
+            if(t.getNextHop() == port % 10) {
+                try {
+                    Packet packet = new Packet();
+                    packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    Packet packet = new Packet();
+                    packet.receiveFromApplicationLayer(port, 54320 + t.getNextHop(), message, this.client.getGroupSocket(), 3);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+    }
+
     /**
      * Method for checking if there is a way to send a message to a certain device.
      * @param port The port of that device we are trying to send a message to.
      * @return True if there is a way, false if not.
      */
-    public Boolean checkForDeviceInTable(int port) {
-        if(port == 4464) {
-            return true;
-        }
+    public TableEntry checkForDeviceInTable(int port) {
         List<TableEntry> l = this.table.get(this.client.getDeviceNo());
         for(TableEntry t : l) {
             if(t.destination == (port % 10)) {
-                return true;
+                return t;
             }
         }
-        return false;
+        return null;
     }
 
     /**

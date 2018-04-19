@@ -139,13 +139,7 @@ public class Client extends Observable {
      * @throws IOException
      */
     public void sendToProceessingLayer(String message, int port) throws Exception {
-        Packet packet = new Packet();
-        if(this.routingTable.checkForDeviceInTable(port)) {
-            packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
-        } else {
-            System.out.println("NO PATH AVAILABLE");
-        }
-
+        this.routingTable.sendToProcessingLayer(message, port);
     }
 
     /**
