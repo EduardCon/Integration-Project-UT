@@ -6,7 +6,6 @@ import Exceptions.InvalidPacketFormat;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
 
-import java.io.Serializable;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
@@ -48,12 +47,12 @@ public class Packet {
     private byte finFlag = 0;
 
     /**
-     * remove?
+     * Next hop.
      */
     private byte nextHop = 0;
 
     /**
-     * remove?
+     * Window size.
      */
     private int windowSize = 0;
 
@@ -84,22 +83,6 @@ public class Packet {
     private Client client;
 
     /**
-     * remove?
-     */
-    private static final String MAC_ALGORITHM = "HMACSHA256";
-
-    /**
-     * remove?
-     */
-    private static final String HEX_AES_KEY =
-            "B22E2B9A77C6DE2B9A779E7B2C6DA76E51C829E725EC8478A76E51C825EC8478";
-
-    /**
-     * remove?
-     */
-    private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
-
-    /**
      * Constructor for an empty packet.
      */
     public Packet() {
@@ -127,9 +110,7 @@ public class Packet {
         packetType = packet[0];
 
         if(packetType == Utils.nullPacket) {
-
-            //throw new InvalidPacketFormat();
-
+            throw new InvalidPacketFormat("Packet is invalid!");
         } else {
             sourcePort = fromByteArray(packet, 1);
 
@@ -149,7 +130,6 @@ public class Packet {
 
             dataLength = fromByteArray(packet, 24);
 
-           // System.out.println(packet.length);
             System.arraycopy(packet, 28, data, 0, dataLength);
         }
     }
@@ -212,7 +192,7 @@ public class Packet {
      * @throws Exception
      */
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
-        //Encryption encryption = new Encryption();
+        Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
         this.setSourcePort(listeningPort);
         this.setDestinationPort(destinationPort);
@@ -223,8 +203,8 @@ public class Packet {
         this.setWindowSize(10);
         this.setNextHop((byte) (listeningPort % 10));
         this.setDataLength(message.getBytes().length);
+        //this.setData(encryption.encrypt(message));
         this.setData(message);
-           //this.setData(encryption.encrypt(message, HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM));
         this.sendToTransportLayer(this, socket);
     }
 
@@ -244,16 +224,10 @@ public class Packet {
      * Method for receiving a packet from the lower Transport Layer.
      * It extracts the message and forwards it to the upper Application Layer to the Client or to the RoutingTable.
      */
-    public void receiveFromTransportLayer(){
-        //System.out.println(this.getData());
-        //System.out.println(this.getData().length);
+    public void receiveFromTransportLayer() throws Exception{
         if(this.packetType == 2) {
-            Encryption encryption = new Encryption();
-            //System.out.println(this.getData().length + " RECEIVED");
+            //Encryption encryption = new Encryption();
             String smallMessage = this.getMessage();
-            String message = new String("Packet type: "+this.getPacketType()+ "\nSource port: " + this.getSourcePort()+ "\nDestination port: " + this.getDestinationPort()+
-                    "\nSequence number: " + this.getSequenceNumber()+ "\nAck: " + this.getAcknowledgment()+ "\nAckFlag: " + this.getAckFlag() +
-                    "\nFin flag: " + this.getFinFlag()+ "\nWindow Size: " + this.getWindowSize() + "\nNextHop: " + this.getNextHop() + "\nData: " +  this.getMessage()/**encryption.decrypt(new String(this.getData()), HEX_AES_KEY, HEX_MAC_KEY, MAC_ALGORITHM)*/);
             sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
         } else if(this.packetType == 1) {
             sendToRoutingTable(this);
@@ -312,9 +286,6 @@ public class Packet {
         for(int i = this.dataLength; i < 128; i++) {
             this.data[i] = (byte) 0;
         }
-        //System.out.println(this.data.toString());
-        //System.out.println(new String(this.data));
-        //System.out.println(this.data.length + " SENT");
     }
 
     /**

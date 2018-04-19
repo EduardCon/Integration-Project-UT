@@ -3,17 +3,9 @@ package ApplicationLayer;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -68,9 +60,6 @@ public class BroadcastHandler extends Thread {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        //message = "Client " + this.routingTable.getClient().getName() + " is broadcasting on group port: " + Utils.multiCastGroupPort +
-        //" with listening port: " + this.routingTable.getClient().getListeningPort();
-
         new Thread(this);
         this.start();
     }

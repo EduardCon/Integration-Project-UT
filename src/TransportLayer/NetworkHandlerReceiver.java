@@ -5,19 +5,11 @@ import Exceptions.InvalidPacketFormat;
 import ProcessingLayer.Packet;
 import Util.Utils;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
 
 
 /**
@@ -74,8 +66,11 @@ public class NetworkHandlerReceiver extends Thread {
         } catch (InvalidPacketFormat invalidPacketFormat) {
             invalidPacketFormat.printStackTrace();
         }
-        p.receiveFromTransportLayer();
-
+        try {
+            p.receiveFromTransportLayer();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
     }

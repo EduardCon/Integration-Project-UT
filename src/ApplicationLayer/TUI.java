@@ -1,14 +1,5 @@
 package ApplicationLayer;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-
 public class TUI {
 
     private static Client client;
@@ -17,7 +8,14 @@ public class TUI {
         client=new Client("Eduard C ", 54321);
         client.connect();
 
-        //client.sendToProceessingLayer("Test", 54321);
+//        Encryption encryption = new Encryption();
+//        String message = "test";
+//        String criptat = encryption.encrypt(message);
+//        System.out.println(criptat.length());
+//        String decriptat = encryption.decrypt(criptat);
+//        System.out.println(decriptat);
+
+        client.sendToProceessingLayer("Test", 4464);
         //client.sendToProceessingLayer("Test 2", 54323);
 
     }

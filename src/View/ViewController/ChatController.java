@@ -3,7 +3,6 @@ package View.ViewController;
 import ApplicationLayer.Client;
 import Util.Utils;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -21,7 +20,9 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.ResourceBundle;
 
 public class ChatController implements Initializable, Observer {
     @FXML BorderPane borderPane;
@@ -107,7 +108,7 @@ public class ChatController implements Initializable, Observer {
                 bl6.setBubbleSpec(BubbleSpec.FACE_RIGHT_CENTER);
                 x.getChildren().addAll(bl6, profileImage);
 
-                //setOnlineLabel(Integer.toString(msg.getOnlineCount()));
+               // setOnlineLabel(Integer.toString(msg.getOnlineCount()));
                 return x;
             }
         };

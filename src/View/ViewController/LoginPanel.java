@@ -89,7 +89,7 @@ public class LoginPanel implements Initializable {
         chat.setImageLabel(selectedPicture.getText());
         chat.setUsername(getUsername());
         chat.setClient(client);
-        chat.chatPane.getItems().add(client.getReceivedBuffer().values());
+        chat.chatPane.getItems().add(client.getReceivedBuffer().get(0).toString());
         stage.setScene((new Scene(window)));
         stage.show();
     }

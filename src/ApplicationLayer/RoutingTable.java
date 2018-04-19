@@ -2,13 +2,7 @@ package ApplicationLayer;
 
 import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import javafx.scene.control.Tab;
-import javafx.scene.text.TextAlignment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.*;
 
 /**
@@ -43,7 +37,7 @@ public class RoutingTable extends Observable {
     /**
      * Inner class for a table entry.
      */
-    class TableEntry {
+    public static class TableEntry {
 
         /**
          * This is the device to which there is a known route.
@@ -130,16 +124,11 @@ public class RoutingTable extends Observable {
     public RoutingTable(Client client) {
         this.table = new HashMap<>();
         this.client = client;
-        //this.testTable();
-          this.broadcastHandler = new BroadcastHandler(this);
-          this.initializeTable();
-          this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
+        this.broadcastHandler = new BroadcastHandler(this);
+        this.initializeTable();
+        this.broadcastReceiver = new NetworkHandlerReceiver(this.client, this.client.getGroupSocket());
 
     }
-
-    /*
-    <x>.d.n.d/d.n.d/
-     */
 
     /**
      * Method for converting the map representation of the table into a String for easier transmission over the network.
@@ -159,33 +148,7 @@ public class RoutingTable extends Observable {
                 result += t.getDestination() + "," + t.getNextHop() + "," + t.getDistance() + "/";
             }
         }
-        //System.out.println(result);
         return result;
-    }
-
-
-    public void testTable() {
-        // list from device 3
-        TableEntry tb = new TableEntry(1, 2, 2);
-        TableEntry tb2 = new TableEntry(3, 3, 0);
-        TableEntry tbx = new TableEntry(4, 4, 1);
-        List<TableEntry> list = new ArrayList<>();
-        list.add(tb);
-        list.add(tb2);
-        list.add(tbx);
-        table.put(3, list);
-
-        // list from device 2
-        TableEntry tb3 = new TableEntry(2, 2, 0);
-        TableEntry tb4 = new TableEntry(1, 1, 1);
-        List<TableEntry> list2 = new ArrayList<>();
-        list2.add(tb3);
-        list2.add(tb4);
-        table.put(2, list2);
-
-        String parsed = this.convertToStringMessage(table);
-        System.out.println(this.convertToStringMessage(table));
-        System.out.println(this.convertToStringMessage(this.parseTable(parsed)));
     }
 
     /**
@@ -203,11 +166,6 @@ public class RoutingTable extends Observable {
         this.broadcastHandler.setMessage(this.convertToStringMessage(table));
         this.printTable();
     }
-
-    /*
-    <x.d.n.d/d.n.d/>
-     */
-
     /**
      * Method for converting a String representation of a table into a map.
      * @param message The String representation of the table.
@@ -253,15 +211,12 @@ public class RoutingTable extends Observable {
             if (tb.getDestination() == entry.getDestination()) {
                 found = true;
                 if (tb.getDistance() > entry.getDistance() && entry.getDistance() != 0) {
-                    //System.out.println("Removed: " + tb.getDistance() + " " + tb.getDestination() + " " + tb.getNextHop());
                     list.remove(tb);
-                    //System.out.println("Added: " + entry.getDistance() + " " + entry.getDestination() + " " + entry.getNextHop());
                     list.add(entry);
                     return true;
                 }
             }
             if (!found) {
-                //System.out.println("Added: " + entry.getDistance() + " " + entry.getDestination() + " " + entry.getNextHop() + "(not found)");
                 list.add(entry);
                 return true;
             }
@@ -311,6 +266,24 @@ public class RoutingTable extends Observable {
             this.broadcastHandler.setMessage(this.convertToStringMessage(table));
             notifyObservers();
         }
+    }
+
+    /**
+     * Method for checking if there is a way to send a message to a certain device.
+     * @param port The port of that device we are trying to send a message to.
+     * @return True if there is a way, false if not.
+     */
+    public Boolean checkForDeviceInTable(int port) {
+        if(port == 4464) {
+            return true;
+        }
+        List<TableEntry> l = this.table.get(this.client.getDeviceNo());
+        for(TableEntry t : l) {
+            if(t.destination == (port % 10)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
