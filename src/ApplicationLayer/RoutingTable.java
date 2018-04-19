@@ -2,6 +2,7 @@ package ApplicationLayer;
 
 import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
+import javafx.scene.control.Tab;
 
 import java.util.*;
 
@@ -67,7 +68,7 @@ public class RoutingTable extends Observable {
             this.destination = destination;
             this.nextHop = nextHop;
             this.distance = distance;
-            this.TTL = 10;
+            this.TTL = 5;
         }
 
         /**
@@ -194,12 +195,15 @@ public class RoutingTable extends Observable {
      */
     public Map<Integer, List<TableEntry>> parseTable (String message) {
         Map<Integer, List<TableEntry>> result = new HashMap<>();
-        if(message.charAt(0) - '0' == this.client.getDeviceNo()) {
+
+        int receivedFrom = message.charAt(0) - '0';
+        if(receivedFrom == this.client.getDeviceNo()) {
             return null;
         }
+
         String[] devices = message.split("<");
         for(String s : devices) {
-            if(s.isEmpty()){
+            if(s == devices[0]){
                 continue;
             }
             int deviceNo = s.charAt(0) - '0';
@@ -302,23 +306,37 @@ public class RoutingTable extends Observable {
     }
 
     public void decrementTTL() {
+        Map<Integer, List<TableEntry>> toBeRemoved = new HashMap<>();
         for(Integer i : this.table.keySet()) {
             List<TableEntry> list = this.table.get(i);
             if(list != null) {
+                List<TableEntry> listToBeRemoved = new ArrayList<>();
                 for(TableEntry t : list) {
                     t.decrementTTL();
                     if(t.getTTL() <= 0) {
-                        list.remove(t);
-                        System.out.println("REMOVED: " + t.getDestination() + "\n" + t.getNextHop() + "\n" + t.getDistance());
+                        listToBeRemoved.add(t);
                     }
                 }
+                toBeRemoved.put(i, listToBeRemoved);
             }
         }
+
+        for(Integer i : toBeRemoved.keySet()){
+            List<TableEntry> listToBeRemoved = toBeRemoved.get(i);
+            for(TableEntry t : listToBeRemoved) {
+                this.table.get(i).remove(t);
+            }
+            if(this.table.get(i).size() == 0) {
+                this.table.remove(i, this.table.get(i));
+            }
+        }
+
+        this.printTable();
 
         List<TableEntry> list = this.table.get(this.client.getDeviceNo());
         for(TableEntry t : list) {
             if(t.getDestination() == this.client.getDeviceNo()) {
-                t.setTTL(10);
+                t.setTTL(5);
                 System.out.println("REFRESHED MY ENTRY");
             }
         }
@@ -332,7 +350,7 @@ public class RoutingTable extends Observable {
                 for(TableEntry tb : receivedList) {
                     TableEntry found = findInOurList(tb, ourList);
                     if(found != null) {
-                        found.setTTL(10);
+                        found.setTTL(5);
                         System.out.println("-------------------------REFRESHED------------------");
                         System.out.println(found.getDestination() + "\n" + found.getNextHop() + "\n" + found.getDistance());
                     }
@@ -343,7 +361,7 @@ public class RoutingTable extends Observable {
 
     public TableEntry findInOurList(TableEntry tb, List<TableEntry> ourList) {
         for(TableEntry t : ourList) {
-            if(t.getDestination() == tb.getDestination() && t.getNextHop() == tb.getNextHop() && t.getDistance() == tb.getDistance()) {
+            if(t.getDestination() == tb.getDestination() && t.getNextHop() == tb.getNextHop()) {
                 return t;
             }
         }
