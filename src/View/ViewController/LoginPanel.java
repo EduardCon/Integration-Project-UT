@@ -26,7 +26,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
-import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -46,13 +45,12 @@ public class LoginPanel implements Initializable {
     @FXML private ChoiceBox imagePicker;
     @FXML private Label selectedPicture;
     @FXML private BorderPane borderPane;
-    private Message1on1 message;
     public static ChatController chat;
     public int portNumber;
     private double xOffset;
     private double yOffset;
     private Scene scene;
-    private Client client;
+    public Client client;
     String username;
 
     private static LoginPanel instance;
@@ -79,31 +77,19 @@ public class LoginPanel implements Initializable {
         setPortNumber(portTextfield.getText());
         setUser(usernameTextfield.getText());
         Stage stage = new Stage();
-        Stage stage2 = new Stage();
         client = new Client(getUsername(),  getPortNumber());
         client.connect();
-
-        FXMLLoader root = new FXMLLoader(this.getClass().getResource("/View/OneOnOne.fxml"));
-        Parent windowPrivate = (Pane) root.load();
-        message = root.<Message1on1>getController();
-        message.setClient(client);
-        stage2.setScene(new Scene(windowPrivate));
-        stage2.show();
-
-
        // String picture = selectedPicture.getText();
-        //CHAT CONTROLLER AICI
+
         FXMLLoader fmxlLoader = new FXMLLoader(this.getClass().getResource("/View/ChatView.fxml"));
         Parent window = (Pane) fmxlLoader.load();
         chat = fmxlLoader.<ChatController>getController();
         client.addObserver(chat);
-        client.getRoutingTable().addObserver(chat);
         chat.setPortNumber(getPortNumber());
         chat.setImageLabel(selectedPicture.getText());
         chat.setUsername(getUsername());
         chat.setClient(client);
-        chat.setOnlineLabel(Integer.toString(1));
-        chat.chatPane.getItems().add( client.lastMessageTodDisplay);
+        chat.chatPane.getItems().add(client.getReceivedBuffer().get(0).toString());
         stage.setScene((new Scene(window)));
         stage.show();
     }
@@ -120,10 +106,6 @@ public class LoginPanel implements Initializable {
         File dir = new File("E:/University/ProiectPLM/src");
         pb.directory(dir);
         Process p = pb.start();
-    }
-
-    public Client getClient() {
-        return this.client;
     }
 
     public int getPortNumber() {

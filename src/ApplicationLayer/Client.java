@@ -4,15 +4,10 @@ import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
 import Util.Utils;
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.*;
 
 /**
@@ -138,41 +133,6 @@ public class Client extends Observable {
     }
 
     /**
-     * Search through the interfaces and find an IP address that has a "192.168.5.X" prefix.
-     * X is the computer number and is used for the port.
-     * The port will be 5432X.
-     * @return The client's port.
-     */
-    public int findClientPort() {
-        String ip;
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                // filters out 127.0.0.1 and inactive interfaces
-                if (iface.isLoopback() || !iface.isUp())
-                    continue;
-
-                Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while(addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    ip = addr.getHostAddress().toString();
-                    if(ip.startsWith("192.168.5.")) {
-                        char suffix = ip.charAt(10);
-                        int foundPort = 54320 + (suffix - '0');
-                        return foundPort;
-                    }
-                }
-            }
-            //error here
-            return -1;
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    /**
      * Method for sending a message to the processing layer.
      * @param message The message to be sent.
      * @param port The destination port.
@@ -180,9 +140,13 @@ public class Client extends Observable {
      */
     public void sendToProceessingLayer(String message, int port) throws Exception {
         Packet packet = new Packet();
-        packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
-    }
+        if(this.routingTable.checkForDeviceInTable(port)) {
+            packet.receiveFromApplicationLayer(port, listeningPort, message, this.socket, 2) ;
+        } else {
+            System.out.println("NO PATH AVAILABLE");
+        }
 
+    }
 
     /**
      * Method for receiving a message from the processing layer and adding it to the buffer.

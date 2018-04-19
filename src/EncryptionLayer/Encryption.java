@@ -1,93 +1,205 @@
+
 package EncryptionLayer;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.io.UnsupportedEncodingException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Random;
 
 @Deprecated
 public class Encryption {
 
-    private static final SecureRandom secureRandom = new SecureRandom();
-    private static final int RANDOM_BYTES_LENGTH = 16;
-    private static final String MAC_ALGORITHM = "HMACSHA256";
-    private static final String STRING_ENCODING = "ISO_8859_1";
-    private static final String HEX_AES_KEY =
-            "B22E2B9A77C6DE2B9A779E7B2C6DA76E51C829E725EC8478A76E51C825EC8478";
-    private static final String HEX_MAC_KEY = "AEB908AA1CEDFFDEA1F255640A05EEF6";
+    private String sessionPassword;
+    private AsymmetricEncryption a;
 
-    public Encryption() {}
-
-    public String encrypt(String plainText, String hexAesKey, String hexMacKey, String macAlgorithm)
-            throws Exception {
-        // compute the cipher
-        byte[] decodedHexAesKey = DatatypeConverter.parseHexBinary(hexAesKey);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(decodedHexAesKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        byte[] paddingBytes = new byte[RANDOM_BYTES_LENGTH];
-        secureRandom.nextBytes(paddingBytes);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(paddingBytes));
-        byte[] encryptedText = cipher.doFinal(plainText.getBytes(STRING_ENCODING));
-
-        // Prepend random to the encryptedText
-        byte[] paddedCipher = concatByteArrays(paddingBytes, encryptedText);
-
-        // Append message digest
-        byte[] digest = computeDigest(paddedCipher, hexMacKey, macAlgorithm);
-        byte[] completeText = concatByteArrays(paddedCipher, digest);
-
-        BASE64Encoder base64Encoder = new BASE64Encoder();
-        return base64Encoder.encode(completeText);
+    /**
+     * Initializez a new Encryption. By doing this a new sessionKey is created,
+     * which is actually used to create the symmetric key. It also initializez
+     * a new AsymmetricEncryption, which is used to encrypt the symmetric key.
+     * @throws NoSuchPaddingException, the padding is too short
+     * @throws NoSuchAlgorithmException, the algorithm is invalid
+     */
+    public Encryption() throws NoSuchPaddingException, NoSuchAlgorithmException{
+        //The session key is a string which can contain only letters or numbers and is always chosen randomly.
+//    	String SALTCHARS = "ABCDafgwergVWXYZabcdefgSDJFopxyz123450asjhegwbIAUSDG";
+//        StringBuilder salt = new StringBuilder();
+//        Random rnd = new Random();
+//        while (salt.length() < 18) { // length of the random string.
+//            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+//            salt.append(SALTCHARS.charAt(index));
+//        }
+//        this.sessionPassword = SALTCHARS;
+//        a = new AsymmetricEncryption();
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 18) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        this.sessionPassword = salt.toString();
+        a = new AsymmetricEncryption();
     }
 
-    public String decrypt(String encryptedText, String hexAesKey, String hexMacKey,
-                          String macAlgorithm) throws Exception {
-        BASE64Decoder base64decoder = new BASE64Decoder();
-        int macLength = Mac.getInstance(macAlgorithm).getMacLength();
-        byte[] completeBytes = base64decoder.decodeBuffer(encryptedText);
-        int macStartIndex = completeBytes.length - macLength;
-        byte[] padding = Arrays.copyOfRange(completeBytes, 0, RANDOM_BYTES_LENGTH);
-        byte[] paddedCipher = Arrays.copyOfRange(completeBytes, 0, macStartIndex);
-        byte[] encryptedBytes = Arrays.copyOfRange(completeBytes, RANDOM_BYTES_LENGTH, macStartIndex);
-        byte[] digestBytes = Arrays.copyOfRange(completeBytes, macStartIndex, completeBytes.length);
-
-
-        byte[] computedDigest = computeDigest(paddedCipher, hexMacKey, macAlgorithm);
-//        if (!MessageDigest.isEqual(digestBytes, computedDigest)) {
-        //          throw new RuntimeException("Message corrupted");
-        //    }
-
-        byte[] decodedHexAesKey = DatatypeConverter.parseHexBinary(hexAesKey);
-        SecretKeySpec keySpec = new SecretKeySpec(decodedHexAesKey, "AES");
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(Cipher.DECRYPT_MODE, keySpec, new IvParameterSpec(padding));
-
-        String plaintext = new String(cipher.doFinal(encryptedBytes), STRING_ENCODING);
-        return plaintext;
+    /**
+     * Returns the asymmetric encryption
+     * @return the asymmetric encryption
+     */
+    public AsymmetricEncryption getAsymmetricEncryption() {
+        return a;
     }
 
-    private byte[] concatByteArrays(byte[] array1, byte[] array2) {
-        byte[] result = new byte[array1.length + array2.length];
-        System.arraycopy(array1, 0, result, 0, array1.length);
-        System.arraycopy(array2, 0, result, array1.length, array2.length);
-        return result;
+    /**
+     * Returns the sessionKey generated by the constructor
+     * @return the sessionKey
+     */
+    public String getSessionPassword() {
+        return this.sessionPassword;
     }
 
-    private byte[] computeDigest(byte[] message, String hexMacKey, String algorithm)
-            throws NoSuchAlgorithmException, InvalidKeyException {
-        byte[] decodedHexMacKey = DatatypeConverter.parseHexBinary(hexMacKey);
-        SecretKeySpec secretKeySpc = new SecretKeySpec(decodedHexMacKey, algorithm);
-        Mac mac = Mac.getInstance(algorithm);
-        mac.init(secretKeySpc);
-        byte[] digest = mac.doFinal(message);
-        return digest;
+    /**
+     * This method is used for the decryption of the message. It first
+     * splits the message in the encoded session key, iv and message. Then
+     * it decodes the session key and creates the symmetric key, then it
+     * decrypts the iv and decrypts the message.
+     * @param string the message we want to decrypt
+     * @return the decrypted message
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws UnsupportedEncodingException
+     * @throws InvalidKeySpecException
+     */
+    public String decrypt(String string) throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, UnsupportedEncodingException, InvalidKeySpecException {
+        String publicKey = string.split(":")[0];
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKey));
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        PublicKey pKey = kf.generatePublic(spec);
+
+        String secretKey = string.split(":")[1];
+        secretKey = a.decryptMessage(secretKey, pKey);
+        SecretKeySpec key = createSecretKey(secretKey);
+
+        String iv = string.split(":")[2];
+        String message = string.split(":")[3];
+        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        pbeCipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(base64Decode(iv)));
+
+        return new String(pbeCipher.doFinal(base64Decode(message)), "UTF-8");
+    }
+
+    /**
+     * Decodes an encoded message using base64Decode
+     * @param property, the encoded message
+     * @return an array of bytes, which represent the decoding of the property
+     */
+    public byte[] base64Decode(String property) {
+        return Base64.getDecoder().decode(property);
+    }
+
+    /**
+     * This method is used for the actual encryption of the message. First
+     * we create the secret key using the generated sessionKey. Then the session Key
+     * is encrypted using the AsymmetricEncryption. A new cipher is initialized which
+     * is used as AES encryption and a new initialization vector, iv, is created, in order
+     * to encrypt the message. After the encryption is done we concat the encoded session
+     * key with the encoded iv and the encoded message.
+     * @param message, the message we want to encode
+     * @return the encoded message
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidParameterSpecException
+     * @throws UnsupportedEncodingException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeySpecException
+     * @throws InvalidKeyException
+     */
+    public String encrypt(String message) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidParameterSpecException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException, InvalidKeyException {
+        SecretKeySpec key = createSecretKey(getSessionPassword());
+        String encodedKey = a.encryptMessage(getSessionPassword());
+
+        Cipher pbeCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        pbeCipher.init(Cipher.ENCRYPT_MODE, key);
+        AlgorithmParameters parameters = pbeCipher.getParameters();
+        IvParameterSpec ivParameterSpec = parameters.getParameterSpec(IvParameterSpec.class);
+        byte[] cryptoText = pbeCipher.doFinal(message.getBytes("UTF-8"));
+        byte[] iv = ivParameterSpec.getIV();
+        String publicKey = Base64.getEncoder().encodeToString(a.getPublicKey().getEncoded());
+        return publicKey + ":" + encodedKey + ":" + base64Encode(iv) + ":" + base64Encode(cryptoText);
+    }
+
+    /**
+     * Encodes an array of bytes using base64Encoding
+     * @param bytes of the message which we want to encode
+     * @return the encoded message as a string
+     */
+    public String base64Encode(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    /**
+     * This is used co create the symmetric key, using the session password.
+     * We set first the salt, the number of iterations and the keyLength.
+     * Then we create a new keyFactory, using the algorithm in getInstance,
+     * and a new KeySpec using the salt, keylength and the iteration. Then a
+     * new SecretKey is generated using the keyFactory and the keySpec
+     * @param message, which is the sessionKey
+     * @return a SecretKeySpec whiich is the symmetric key used for AES encryption.
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     */
+    public SecretKeySpec createSecretKey(String message) throws InvalidKeySpecException, NoSuchAlgorithmException {
+        char[] password = message.toCharArray();
+        if (password == null) {
+            throw new IllegalArgumentException("Run with -Dpassword=<password>");
+        }
+        byte[] salt = new String("01234567").getBytes();
+        int iteration = 40000;
+        int keyLength = 128;
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+        PBEKeySpec keySpec = new PBEKeySpec(password, salt, iteration, keyLength);
+        SecretKey keyTmp = keyFactory.generateSecret(keySpec);
+        return new SecretKeySpec(keyTmp.getEncoded(), "AES");
+    }
+
+    /**
+     * This main method is used for testing if the encryption actually works.
+     * @param args
+     */
+    public static void main(String[] args) {
+        try {
+            Encryption e = new Encryption();
+            String m = e.encrypt("It's a me Mario");
+            System.out.println(m);
+            System.out.println(e.decrypt(m));
+            System.out.println(e.decrypt(e.encrypt("It's a me Mario")).equals("It's a me Mario"));
+        } catch (NoSuchPaddingException e1) {
+            e1.printStackTrace();
+        } catch (NoSuchAlgorithmException e1) {
+            e1.printStackTrace();
+        } catch (InvalidKeySpecException e1) {
+            e1.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (InvalidParameterSpecException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
     }
 }
