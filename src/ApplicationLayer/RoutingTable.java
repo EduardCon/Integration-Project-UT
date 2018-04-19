@@ -191,6 +191,9 @@ public class RoutingTable extends Observable {
                 for(String f : entries) {
                     tableEntries.add(f.charAt(f.length() - 1) - '0');
                 }
+                if(tableEntries.size() != 3) {
+                    System.out.println("ce plm");
+                }
                 TableEntry tb = new TableEntry(tableEntries.get(0), tableEntries.get(1), tableEntries.get(2));
                 list.add(tb);
             }
@@ -232,8 +235,8 @@ public class RoutingTable extends Observable {
      * @param packet The packet received.
      */
     public void receiveFromProcessingLayer(Packet packet) {
-
         Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
+
 
         boolean updateTable = false;
 
@@ -275,36 +278,34 @@ public class RoutingTable extends Observable {
         if(port == 4464) {
             try {
                 Packet packet = new Packet();
-                packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 1);
+                packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-
-        int deviceNo = port % 10;
-
-        TableEntry t = this.checkForDeviceInTable(port);
-
-        if(t == null) {
-            System.out.println("NO ROUTE AVALIABLE");
         } else {
-            // There is a direct link to the destination.
-            if(t.getNextHop() == port % 10) {
-                try {
-                    Packet packet = new Packet();
-                    packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    Packet packet = new Packet();
-                    packet.receiveFromApplicationLayer(port, 54320 + t.getNextHop(), message, this.client.getGroupSocket(), 3);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            TableEntry t = this.checkForDeviceInTable(port);
 
+            if(t == null) {
+                System.out.println("NO ROUTE AVALIABLE");
+            } else {
+                // There is a direct link to the destination.
+                if(t.getNextHop() == port % 10) {
+                    try {
+                        Packet packet = new Packet();
+                        packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        Packet packet = new Packet();
+                        packet.receiveFromApplicationLayer(port, 54320 + t.getNextHop(), message, this.client.getGroupSocket(), 3);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
         }
 
     }
