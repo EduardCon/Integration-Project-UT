@@ -338,4 +338,7 @@ public class RoutingTable extends Observable {
         return this.client;
     }
 
+    public int getOnlineUsers() {
+        return this.table.size();
+    }
 }

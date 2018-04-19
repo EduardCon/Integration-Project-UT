@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+@Deprecated
 public class Encryption {
 
     private static final SecureRandom secureRandom = new SecureRandom();

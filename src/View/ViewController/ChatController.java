@@ -3,23 +3,23 @@ package View.ViewController;
 import ApplicationLayer.Client;
 import Util.Utils;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -31,9 +31,9 @@ public class ChatController implements Initializable, Observer {
     @FXML private Label usernameLabel;
     @FXML private Label onlineCountLabel;
     int portNumber;
-    Stage stage;
+    Stage stage=new Stage();
     private String username;
-    public Client client;
+    private Client client;
     public LoginPanel login;
     private String lastmessageinbox;
 
@@ -48,8 +48,12 @@ public class ChatController implements Initializable, Observer {
         }
     }
 
+    public Client getClient() {
+        return this.client;
+    }
+
     public void setClient(Client client) {
-        this.client=client;
+        this.client = client;
     }
 
     public int getPortNumber() {
@@ -58,6 +62,13 @@ public class ChatController implements Initializable, Observer {
 
     public void setPortNumber(int portNumber) {
         this.portNumber = portNumber;
+    }
+
+    public void newClientView() throws IOException{
+        Parent fxmlLoader = FXMLLoader.load((getClass().getResource("/View/OneOnOne.fxml")));
+        stage.setScene(new Scene(fxmlLoader));
+        stage.show();
+
     }
 
     public void addToChat() {
@@ -161,7 +172,10 @@ public void setImageLabel() {
     @Override
     public void update(Observable o, Object arg) {
         System.out.println("sunt aici");
-        addToChat();
-
+        if(o == this.client) {
+            addToChat();
+        } else if (o == this.client.getRoutingTable()) {
+            setOnlineLabel(Integer.toString(this.client.getRoutingTable().getOnlineUsers()));
+        }
     }
 }

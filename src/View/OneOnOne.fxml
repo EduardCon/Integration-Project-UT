@@ -11,6 +11,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -18,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="borderPane" maxHeight="620.0" maxWidth="1040.0" prefHeight="620.0" prefWidth="1040.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ViewController.ChatController">
+<BorderPane fx:id="borderPane" maxHeight="620.0" maxWidth="1040.0" prefHeight="620.0" prefWidth="1040.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.ViewController.Message1on1">
     <center>
         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
             <children>
@@ -51,32 +52,10 @@
     <left>
         <VBox maxHeight="1.7976931348623157E308" BorderPane.alignment="CENTER">
             <children>
-                <HBox fx:id="onlineUsersHbox" minHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="217.0" stylesheets="@../View/styles/ListViewStyle.css">
-                    <children>
-                        <Label prefHeight="50.0" prefWidth="124.0" text="Online Users:" textAlignment="CENTER" textFill="#fc6747">
-                            <font>
-                                <Font name="SansSerif Regular" size="14.0" />
-                            </font>
-                            <padding>
-                                <Insets left="10.0" />
-                            </padding>
-                            <opaqueInsets>
-                                <Insets bottom="10.0" />
-                            </opaqueInsets>
-                        </Label>
-                        <Label fx:id="onlineCountLabel" prefHeight="48.0" prefWidth="94.0" text="0" textFill="#fc6747">
-                            <opaqueInsets>
-                                <Insets />
-                            </opaqueInsets>
-                            <font>
-                                <Font name="SansSerif Regular" size="14.0" />
-                            </font>
-                        </Label>
-                    </children>
-                </HBox>
                 <ListView fx:id="userList" focusTraversable="false" maxHeight="1.7976931348623157E308" prefHeight="495.0" prefWidth="217.0" style="-fx-border-image-width: 0;" stylesheets="@../View/styles/ListViewStyle.css">
                 </ListView>
-            <Button fx:id="sendToClient" mnemonicParsing="false" onAction="#newClientView" text="Send to Client" />
+            <TextField fx:id="portText" promptText="Insert client port" />
+            <Button fx:id="setPort" contentDisplay="CENTER" mnemonicParsing="false" onAction="#getPortAction" text="Set port" textAlignment="CENTER" />
             </children>
         </VBox>
     </left>
@@ -136,7 +115,7 @@
                                 <Insets left="10.0" top="30.0" />
                             </HBox.margin>
                             <children>
-                                <Label fx:id="usernameLabel" text="Public Chat" textFill="#fa6648">
+                                <Label fx:id="usernameLabel" text="Private Window" textFill="#fa6648">
                                     <font>
                                         <Font name="HelveticaNeue Medium" size="14.0" />
                                     </font>

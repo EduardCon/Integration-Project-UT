@@ -108,6 +108,7 @@ public class Client extends Observable {
         List<String> joined = new ArrayList<>();
         joined.add(s);
         receivedBuffer.put(0,joined);
+        lastMessageTodDisplay = s;
         try {
             //Create a new socket for this client's listening port.
             this.socket = new MulticastSocket(this.getListeningPort());

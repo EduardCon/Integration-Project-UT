@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.*;
 
+@Deprecated
 public class GenerateKeys {
     
     private KeyPairGenerator keyGenerator;
