@@ -110,7 +110,7 @@ public class Packet {
         packetType = packet[0];
 
         if(packetType == Utils.nullPacket) {
-            throw new InvalidPacketFormat("Packet is invalid!");
+            //throw new InvalidPacketFormat("Packet is invalid!");
         } else {
             sourcePort = fromByteArray(packet, 1);
 
