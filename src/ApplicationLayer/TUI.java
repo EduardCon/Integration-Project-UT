@@ -1,11 +1,13 @@
 package ApplicationLayer;
 
+import java.util.concurrent.TimeUnit;
+
 public class TUI {
 
     private static Client client;
 
     public static void main(String[] args) throws Exception {
-        client=new Client("Eduard C ", 54321);
+        client=new Client("Eduard C ", 54322);
         client.connect();
 
 //        Encryption encryption = new Encryption();
@@ -15,7 +17,10 @@ public class TUI {
 //        String decriptat = encryption.decrypt(criptat);
 //        System.out.println(decriptat);
 
-        client.sendToProceessingLayer("Test", 4464);
+        while(true){
+            client.sendToProceessingLayer("ediC", 54323);
+            TimeUnit.SECONDS.sleep(2);
+        }
         //client.sendToProceessingLayer("Test 2", 54323);
 
     }

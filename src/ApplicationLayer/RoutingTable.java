@@ -289,6 +289,7 @@ public class RoutingTable extends Observable {
                 System.out.println("NO ROUTE AVALIABLE");
             } else {
                 // There is a direct link to the destination.
+                this.client.lastMessageTodDisplay = message;
                 if(t.getNextHop() == port % 10) {
                     try {
                         Packet packet = new Packet();
@@ -316,10 +317,15 @@ public class RoutingTable extends Observable {
      * @return True if there is a way, false if not.
      */
     public TableEntry checkForDeviceInTable(int port) {
-        List<TableEntry> l = this.table.get(this.client.getDeviceNo());
-        for(TableEntry t : l) {
-            if(t.destination == (port % 10)) {
-                return t;
+        for(int i = 1; i <= 4; i++ ){
+            List<TableEntry> l = this.table.get(i);
+            if(l != null) {
+                for(TableEntry t : l) {
+                    if(t.destination == (port % 10)) {
+                        return t;
+                    }
+                }
+
             }
         }
         return null;

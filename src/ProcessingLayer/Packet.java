@@ -226,14 +226,15 @@ public class Packet {
      */
     public void receiveFromTransportLayer() throws Exception{
         // If it's a text message for this client, pass it to the Application Layer.
-        if(this.packetType == 2) {
+        if(this.packetType == (byte) 2) {
+            System.out.println("intru aici");
             //Encryption encryption = new Encryption();
             String smallMessage = this.getMessage();
             sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
-        } else if(this.packetType == 1) {
+        } else if(this.packetType == (byte) 1) {
             // If it's a broadcast, send to the Routing Table
             sendToRoutingTable(this);
-        } else if(this.packetType == 3) {
+        } else if(this.packetType == (byte) 3) {
             // If the packet was redirected
             // The packet might be intended for this client
             if(this.getNextHop() == (byte) this.client.getDeviceNo()) {
