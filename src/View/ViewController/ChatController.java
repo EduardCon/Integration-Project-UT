@@ -45,7 +45,7 @@ public class ChatController implements Initializable, Observer {
             //addToChat(client.getReceivedBuffer());
 //            chatPane.getItems().add(client.getReceivedBuffer().values());
             lastmessageinbox = this.username + ": " + message;
-            client.sendToProceessingLayer(message, 54323);
+            client.sendToProceessingLayer(message, 4464);
             messageBox.clear();
         }
     }
