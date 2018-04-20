@@ -45,7 +45,8 @@ public class ChatController implements Initializable, Observer {
             //addToChat(client.getReceivedBuffer());
 //            chatPane.getItems().add(client.getReceivedBuffer().values());
             lastmessageinbox = this.username + ": " + message;
-            client.sendToProceessingLayer(message, 4464);
+            client.sendToProceessingLayer(message, 54321);
+            addToChat();
             messageBox.clear();
         }
     }
@@ -176,7 +177,7 @@ public void setImageLabel() {
         System.out.println("sunt aici");
         if(o == this.client) {
             addToChat();
-        } else if (o == this.client.getRoutingTable()) {
+        } else {
             setOnlineLabel(Integer.toString(this.client.getRoutingTable().getOnlineUsers()));
         }
     }

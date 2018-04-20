@@ -16,13 +16,13 @@ public class TUI {
 //        for(int i = 0; i < 10; i++) {
 //            test += "1";
 //        }
-
-        String test = "Hello world";
-
-        while(true) {
-            client.sendToProceessingLayer(test, 4464);
-            TimeUnit.SECONDS.sleep(2);
-        }
+//
+//        String test = "Hello world";
+//
+//        while(true) {
+//            client.sendToProceessingLayer(test, 4464);
+//            TimeUnit.SECONDS.sleep(2);
+//        }
 
 
 
