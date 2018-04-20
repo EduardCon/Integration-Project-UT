@@ -1,25 +1,24 @@
 package View.ViewController;
 
 import ApplicationLayer.Client;
-import Util.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Observable;
 import java.util.Observer;
@@ -32,6 +31,7 @@ public class ChatController implements Initializable, Observer {
     @FXML ImageView userImageView;
     @FXML private Label usernameLabel;
     @FXML private Label onlineCountLabel;
+    @FXML private TextField otherPort;
     int portNumber;
     Stage stage=new Stage();
     private String username;
@@ -45,7 +45,7 @@ public class ChatController implements Initializable, Observer {
             //addToChat(client.getReceivedBuffer());
 //            chatPane.getItems().add(client.getReceivedBuffer().values());
             lastmessageinbox = this.username + ": " + message;
-            client.sendToProceessingLayer(message, 4464);
+            client.sendToProceessingLayer(message, 54324);
             messageBox.clear();
         }
     }
@@ -66,11 +66,9 @@ public class ChatController implements Initializable, Observer {
         this.portNumber = portNumber;
     }
 
-    public void newClientView() throws IOException{
-        Parent fxmlLoader = FXMLLoader.load((getClass().getResource("/View/OneOnOne.fxml")));
-        stage.setScene(new Scene(fxmlLoader));
-        stage.show();
-
+    public void newClientView() throws Exception {
+        int newPortClient = Integer.parseInt(otherPort.getText());
+        client.sendToProceessingLayer(messageBox.getText(), newPortClient);
     }
 
     public void addToChat() {
