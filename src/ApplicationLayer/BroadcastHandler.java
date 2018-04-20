@@ -75,7 +75,7 @@ public class BroadcastHandler extends Thread {
         try {
             System.out.println("Sending broadcast!");
             while(true) {
-                this.sendToProcessingLayer(this.message);
+                this.sendToProcessingLayer(this.routingTable.getClient().getEncryption().encrypt(message));
                 TimeUnit.SECONDS.sleep(2);
             }
         } catch (InterruptedException e) {

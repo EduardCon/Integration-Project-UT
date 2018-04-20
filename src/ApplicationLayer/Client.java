@@ -1,5 +1,6 @@
 package ApplicationLayer;
 
+import EncryptionLayer.Encryption;
 import ProcessingLayer.Packet;
 import TransportLayer.NetworkHandlerReceiver;
 import TransportLayer.NetworkHandlerSender;
@@ -81,6 +82,8 @@ public class Client extends Observable {
      */
     private RoutingTable routingTable;
 
+    private Encryption encryption;
+
     /**
      * Client constructor.
      * @param name The name of the Client.
@@ -90,7 +93,7 @@ public class Client extends Observable {
         this.deviceNo = listeningPort % 10;
         this.listeningPort = listeningPort;
         receivedBuffer = new HashMap<>();
-
+        encryption = new Encryption();
     }
 
     /**
@@ -249,6 +252,10 @@ public class Client extends Observable {
      */
     public void setListeningPort(int listeningPort) {
         this.listeningPort = listeningPort;
+    }
+
+    public Encryption getEncryption() {
+        return this.encryption;
     }
 }
 

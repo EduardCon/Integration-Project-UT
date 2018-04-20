@@ -262,7 +262,7 @@ public class RoutingTable extends Observable {
      */
     public void receiveFromProcessingLayer(Packet packet) {
 
-        this.decrementTTL();
+
 
         Map<Integer, List<TableEntry>> receivedTable = parseTable(packet.getMessage());
 
@@ -296,6 +296,8 @@ public class RoutingTable extends Observable {
                     }
                 }
             }
+
+            this.decrementTTL();
 
             if(updateTable) {
                 this.printTable();
@@ -337,7 +339,7 @@ public class RoutingTable extends Observable {
         for(TableEntry t : list) {
             if(t.getDestination() == this.client.getDeviceNo()) {
                 t.setTTL(5);
-                System.out.println("REFRESHED MY ENTRY");
+                //System.out.println("REFRESHED MY ENTRY");
             }
         }
     }
@@ -351,7 +353,7 @@ public class RoutingTable extends Observable {
                     TableEntry found = findInOurList(tb, ourList);
                     if(found != null) {
                         found.setTTL(5);
-                        System.out.println("-------------------------REFRESHED------------------");
+                        //System.out.println("-------------------------REFRESHED------------------");
                         System.out.println(found.getDestination() + "\n" + found.getNextHop() + "\n" + found.getDistance());
                     }
                 }
@@ -369,11 +371,12 @@ public class RoutingTable extends Observable {
     }
 
     public void sendToProcessingLayer(String message, int port) {
+        String encryptedMessage = this.client.getEncryption().encrypt(message);
         // If it is a broadcast for the whole Group.
         if(port == 4464) {
             try {
                 Packet packet = new Packet();
-                packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
+                packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), encryptedMessage, this.client.getGroupSocket(), 2);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -388,14 +391,14 @@ public class RoutingTable extends Observable {
                 if(t.getNextHop() == port % 10) {
                     try {
                         Packet packet = new Packet();
-                        packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), message, this.client.getGroupSocket(), 2);
+                        packet.receiveFromApplicationLayer(port, this.client.getListeningPort(), encryptedMessage, this.client.getGroupSocket(), 2);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
                         Packet packet = new Packet();
-                        packet.receiveFromApplicationLayer(port, 54320 + t.getNextHop(), message, this.client.getGroupSocket(), 3);
+                        packet.receiveFromApplicationLayer(port, 54320 + t.getNextHop(), encryptedMessage, this.client.getGroupSocket(), 3);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

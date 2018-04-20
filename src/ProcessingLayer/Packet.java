@@ -192,7 +192,6 @@ public class Packet {
      * @throws Exception
      */
     public void receiveFromApplicationLayer(int destinationPort, int listeningPort, String message, MulticastSocket socket, int packetType) throws Exception {
-        Encryption encryption = new Encryption();
         this.setPacketType((byte) packetType);
         this.setSourcePort(listeningPort);
         this.setDestinationPort(destinationPort);
@@ -203,7 +202,6 @@ public class Packet {
         this.setWindowSize(10);
         this.setNextHop((byte) (destinationPort % 10));
         this.setDataLength(message.getBytes().length);
-        //this.setData(encryption.encrypt(message));
         this.setData(message);
         this.sendToTransportLayer(this, socket);
     }
@@ -228,7 +226,6 @@ public class Packet {
         // If it's a text message for this client, pass it to the Application Layer.
         if(this.packetType == (byte) 2) {
             System.out.println("intru aici");
-            //Encryption encryption = new Encryption();
             String smallMessage = this.getMessage();
             sendToApplicationLayer(smallMessage, this.getSourcePort() % 10);
         } else if(this.packetType == (byte) 1) {
@@ -279,7 +276,12 @@ public class Packet {
         byte[] data = new byte[this.dataLength];
         System.arraycopy(this.data, 0, data, 0, this.dataLength);
         String message = new String(data);
-        return message;
+        if(packetType == 1) {
+            return message;
+        }
+        else {
+            return this.client.getEncryption().decrypt(message);
+        }
     }
 
     /**

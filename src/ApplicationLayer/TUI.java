@@ -1,5 +1,7 @@
 package ApplicationLayer;
 
+import EncryptionLayer.Encryption;
+
 import java.util.concurrent.TimeUnit;
 
 public class TUI {
@@ -10,12 +12,19 @@ public class TUI {
         client=new Client("Eduard C ", 54322);
         client.connect();
 
-//        Encryption encryption = new Encryption();
-//        String message = "test";
-//        String criptat = encryption.encrypt(message);
-//        System.out.println(criptat.length());
-//        String decriptat = encryption.decrypt(criptat);
-//        System.out.println(decriptat);
+//        String test = "";
+//        for(int i = 0; i < 10; i++) {
+//            test += "1";
+//        }
+
+        String test = "Hello world";
+
+        while(true) {
+            client.sendToProceessingLayer(test, 4464);
+            TimeUnit.SECONDS.sleep(2);
+        }
+
+
 
        // while(true){
          //   client.sendToProceessingLayer("ediC", 54322);
